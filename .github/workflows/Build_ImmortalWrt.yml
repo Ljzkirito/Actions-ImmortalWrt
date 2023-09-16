@@ -146,7 +146,7 @@ jobs:
         body_path: release.txt
         files: |
           ${{ env.FIRMWARE }}/*.bin
-          ${{ env.FIRMWARE }}/config.buildinfo
+          ImmortalWrt/.config
 
     - name: Delete workflow runs
       uses: GitRML/delete-workflow-runs@main
