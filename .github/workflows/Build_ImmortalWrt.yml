@@ -56,6 +56,14 @@ jobs:
         git clone $REPO_URL -b $REPO_BRANCH ImmortalWrt
         ln -sf /workdir/ImmortalWrt $GITHUB_WORKSPACE/ImmortalWrt
 
+    - name: Cache
+      uses: HiGarfield/cachewrtbuild@main
+      with:
+        ccache: 'false'
+        clean: 'false'
+        mixkey: 'aarch64'
+        prefix: ${{ github.workspace }}/ImmortalWrt
+
     - name: Load custom feeds
       run: |
         [ -e $FEEDS_CONF ] && mv $FEEDS_CONF ImmortalWrt/feeds.conf.default
