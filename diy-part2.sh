@@ -22,20 +22,23 @@ find ./ | grep Makefile | grep luci-app-mosdns | xargs rm -f
 git clone https://github.com/sbwml/luci-app-mosdns -b v5 package/mosdns
 
 # Xray 1.8.4 or latest version
-rm -rf feeds/packages/net/xray-core
-svn co https://github.com/fw876/helloworld/branches/main/xray-core feeds/packages/net/xray-core
-rm -rf feeds/packages/net/xray-plugin
-svn co https://github.com/fw876/helloworld/branches/main/xray-plugin feeds/packages/net/xray-plugin
+rm -rf feeds/packages/net/xray-core/*
+wget -P feeds/packages/net/xray-core https://raw.githubusercontent.com/fw876/helloworld/main/xray-core/Makefile
+rm -rf feeds/packages/net/xray-plugin/*
+wget -P feeds/packages/net/xray-plugin https://raw.githubusercontent.com/fw876/helloworld/main/xray-plugin/Makefile
 
 # v2ray latest version
-rm -rf feeds/packages/net/v2ray-core
-svn co https://github.com/fw876/helloworld/branches/main/v2ray-core feeds/packages/net/v2ray-core
-rm -rf feeds/packages/net/v2ray-plugin
-svn co https://github.com/fw876/helloworld/branches/main/v2ray-plugin feeds/packages/net/v2ray-plugin
+rm -rf feeds/packages/net/v2ray-core/*
+wget -P feeds/packages/net/v2ray-core https://raw.githubusercontent.com/fw876/helloworld/main/v2ray-core/Makefile
+rm -rf feeds/packages/net/v2ray-plugin/*
+wget -P feeds/packages/net/v2ray-plugin https://raw.githubusercontent.com/fw876/helloworld/main/v2ray-plugin/Makefile
 
 # Update luci-app-ssr-plus & Depends
 rm -rf feeds/luci/applications/luci-app-ssr-plus
-svn co https://github.com/fw876/helloworld/branches/main/luci-app-ssr-plus feeds/luci/applications/luci-app-ssr-plus
-rm -rf feeds/packages/net/hysteria
-svn co https://github.com/fw876/helloworld/branches/main/hysteria feeds/packages/net/hysteria
-svn co https://github.com/fw876/helloworld/branches/main/shadow-tls package/shadow-tls
+git clone --depth=1 -b main https://github.com/fw876/helloworld
+cp -rf helloworld/luci-app-ssr-plus feeds/luci/applications
+rm -rf helloworld
+# Update hysteria 2.x & shadow-tls
+rm -rf feeds/packages/net/hysteria/*
+wget -P feeds/packages/net/hysteria https://raw.githubusercontent.com/fw876/helloworld/main/hysteria/Makefile
+wget -P package/shadow-tls https://raw.githubusercontent.com/fw876/helloworld/main/shadow-tls/Makefile
