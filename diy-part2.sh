@@ -26,7 +26,8 @@ git clone --depth=1 -b main https://github.com/fw876/helloworld
 Replace_package="xray-core xray-plugin v2ray-core v2ray-plugin hysteria ipt2socks microsocks redsocks2 shadowsocks-rust chinadns-ng dns2socks dns2tcp naiveproxy shadowsocksr-libev simple-obfs tcping tuic-client"
 for a in ${Replace_package}
 do
-	rm -rf feeds/packages/net/"$a"
+	echo "Replace_package=$a"
+ 	rm -rf feeds/packages/net/"$a"
 	cp -rf helloworld/"$a" feeds/packages/net
 done
 rm -rf feeds/luci/applications/luci-app-ssr-plus
@@ -35,8 +36,8 @@ cp -rf helloworld/shadow-tls packages
 rm -rf helloworld
 
 # Remove upx commands
-makefile_file="$({ find package|grep Makefile |sed "/Makefile./d"; } 2>"/dev/null")"
-for a in ${makefile_file}
-do
-	[ -n "$(grep "upx" "$a")" ] && sed -i "/upx/d" "$a"
-done
+#makefile_file="$({ find package|grep Makefile |sed "/Makefile./d"; } 2>"/dev/null")"
+#for a in ${makefile_file}
+#do
+#	[ -n "$(grep "upx" "$a")" ] && sed -i "/upx/d" "$a"
+#done
