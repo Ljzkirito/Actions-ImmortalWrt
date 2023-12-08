@@ -21,36 +21,22 @@ rm -rf feeds/packages/net/mosdns
 find ./ | grep Makefile | grep luci-app-mosdns | xargs rm -f
 git clone https://github.com/sbwml/luci-app-mosdns -b v5 package/mosdns
 
-# Xray 1.8.4 or latest version
-rm -rf feeds/packages/net/xray-core/*
-wget -P feeds/packages/net/xray-core https://raw.githubusercontent.com/fw876/helloworld/main/xray-core/Makefile
-rm -rf feeds/packages/net/xray-plugin/*
-wget -P feeds/packages/net/xray-plugin https://raw.githubusercontent.com/fw876/helloworld/main/xray-plugin/Makefile
-
-# v2ray latest version
-rm -rf feeds/packages/net/v2ray-core/*
-wget -P feeds/packages/net/v2ray-core https://raw.githubusercontent.com/fw876/helloworld/main/v2ray-core/Makefile
-rm -rf feeds/packages/net/v2ray-plugin/*
-wget -P feeds/packages/net/v2ray-plugin https://raw.githubusercontent.com/fw876/helloworld/main/v2ray-plugin/Makefile
-
-# Update luci-app-ssr-plus & Depends
-rm -rf feeds/luci/applications/luci-app-ssr-plus
+# Replace luci-app-ssr-plus & Depends
 git clone --depth=1 -b main https://github.com/fw876/helloworld
+Replace_package="xray-core xray-plugin v2ray-core v2ray-plugin hysteria ipt2socks microsocks redsocks2 shadowsocks-rust chinadns-ng dns2socks dns2tcp naiveproxy shadowsocksr-libev simple-obfs tcping tuic-client"
+for a in ${Replace_package}
+do
+	rm -rf feeds/packages/net/"$a"
+	cp -rf helloworld/"$a" feeds/packages/net
+done
+rm -rf feeds/luci/applications/luci-app-ssr-plus
 cp -rf helloworld/luci-app-ssr-plus feeds/luci/applications
+cp -rf helloworld/shadow-tls packages
 rm -rf helloworld
-# Update hysteria 2.x & shadow-tls
-rm -rf feeds/packages/net/hysteria/*
-wget -P feeds/packages/net/hysteria https://raw.githubusercontent.com/fw876/helloworld/main/hysteria/Makefile
-wget -P package/shadow-tls https://raw.githubusercontent.com/fw876/helloworld/main/shadow-tls/Makefile
-# Update ipt2socks
-rm -rf feeds/packages/net/ipt2socks/*
-wget -P feeds/packages/net/ipt2socks https://raw.githubusercontent.com/fw876/helloworld/main/ipt2socks/Makefile
-# Update microsocks
-rm -rf feeds/packages/net/microsocks/*
-wget -P feeds/packages/net/microsocks https://raw.githubusercontent.com/fw876/helloworld/main/microsocks/Makefile
-# Update redsocks2
-rm -rf feeds/packages/net/redsocks2/*
-wget -P feeds/packages/net/redsocks2 https://raw.githubusercontent.com/fw876/helloworld/main/redsocks2/Makefile
-# Update shadowsocks-rust
-rm -rf feeds/packages/net/shadowsocks-rust/*
-wget -P feeds/packages/net/shadowsocks-rust https://raw.githubusercontent.com/fw876/helloworld/main/shadowsocks-rust/Makefile
+
+# Remove upx commands
+makefile_file="$({ find package|grep Makefile |sed "/Makefile./d"; } 2>"/dev/null")"
+for a in ${makefile_file}
+do
+	[ -n "$(grep "upx" "$a")" ] && sed -i "/upx/d" "$a"
+done
