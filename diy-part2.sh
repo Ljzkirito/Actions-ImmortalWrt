@@ -42,3 +42,15 @@ rm -rf helloworld
 rm -rf feeds/packages/net/hysteria/*
 wget -P feeds/packages/net/hysteria https://raw.githubusercontent.com/fw876/helloworld/main/hysteria/Makefile
 wget -P package/shadow-tls https://raw.githubusercontent.com/fw876/helloworld/main/shadow-tls/Makefile
+# Update ipt2socks
+rm -rf feeds/packages/net/ipt2socks/*
+wget -P feeds/packages/net/ipt2socks https://raw.githubusercontent.com/fw876/helloworld/main/ipt2socks/Makefile
+# Update microsocks
+rm -rf feeds/packages/net/microsocks/*
+wget -P feeds/packages/net/microsocks https://raw.githubusercontent.com/fw876/helloworld/main/microsocks/Makefile
+# Update redsocks2
+rm -rf feeds/packages/net/redsocks2/*
+wget -P feeds/packages/net/redsocks2 https://raw.githubusercontent.com/fw876/helloworld/main/redsocks2/Makefile
+# Update shadowsocks-rust
+rm -rf feeds/packages/net/shadowsocks-rust/*
+wget -P feeds/packages/net/shadowsocks-rust https://raw.githubusercontent.com/fw876/helloworld/main/shadowsocks-rust/Makefile
