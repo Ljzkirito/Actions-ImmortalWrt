@@ -28,11 +28,11 @@ for a in ${Replace_package}
 do
 	echo "Replace_package=$a"
  	rm -rf feeds/packages/net/"$a"
-	cp -rf helloworld/"$a" feeds/packages/net
+	cp -r helloworld/"$a" feeds/packages/net
 done
 rm -rf feeds/luci/applications/luci-app-ssr-plus
-cp -rf helloworld/luci-app-ssr-plus feeds/luci/applications
-cp -rf helloworld/shadow-tls packages
+cp -r helloworld/luci-app-ssr-plus feeds/luci/applications
+cp -r helloworld/shadow-tls package
 rm -rf helloworld
 
 sed -i 's/192.168.1.1/192.168.5.1/g' package/base-files/files/bin/config_generate
