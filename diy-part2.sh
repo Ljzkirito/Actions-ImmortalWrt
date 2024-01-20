@@ -21,6 +21,10 @@ rm -rf feeds/packages/net/mosdns
 find ./ | grep Makefile | grep luci-app-mosdns | xargs rm -f
 git clone https://github.com/sbwml/luci-app-mosdns -b v5 package/mosdns
 
+# Replace Smartdns
+rm -rf feeds/packages/net/smartdns
+git clone https://github.com/Ljzkirito/smartdns-openwrt feeds/packages/net/smartdns
+
 # Replace luci-app-ssr-plus & Depends
 git clone --depth=1 -b master https://github.com/fw876/helloworld
 Replace_package="xray-core xray-plugin v2ray-core v2ray-plugin hysteria ipt2socks microsocks redsocks2 shadowsocks-rust chinadns-ng dns2socks dns2tcp naiveproxy shadowsocksr-libev simple-obfs tcping tuic-client"
