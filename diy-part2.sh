@@ -27,7 +27,7 @@ git clone https://github.com/Ljzkirito/smartdns-openwrt feeds/packages/net/smart
 
 # Replace luci-app-ssr-plus & Depends
 git clone --depth=1 -b master https://github.com/fw876/helloworld
-Replace_package="xray-core xray-plugin v2ray-core v2ray-plugin hysteria ipt2socks microsocks redsocks2 shadowsocks-rust chinadns-ng dns2socks dns2tcp naiveproxy shadowsocksr-libev simple-obfs tcping tuic-client"
+Replace_package="xray-core xray-plugin v2ray-core v2ray-plugin hysteria ipt2socks microsocks redsocks2 shadowsocks-rust chinadns-ng dns2socks dns2tcp naiveproxy simple-obfs tcping tuic-client"
 for a in ${Replace_package}
 do
 	echo "Replace_package=$a"
