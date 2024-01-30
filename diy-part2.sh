@@ -34,6 +34,7 @@ do
  	rm -rf feeds/packages/net/"$a"
 	cp -r helloworld/"$a" feeds/packages/net
 done
+# sed -i 's/ +libopenssl-legacy//g' feeds/packages/net/shadowsocksr-libev/Makefile
 rm -rf feeds/luci/applications/luci-app-ssr-plus
 cp -r helloworld/luci-app-ssr-plus feeds/luci/applications
 cp -r helloworld/shadow-tls package
