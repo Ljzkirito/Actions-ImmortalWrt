@@ -16,4 +16,4 @@ echo "download rust/host form immortalwrt/packages-openwrt-23.05"
 mkdir -p feeds/packages/lang
 cp -rv packages-temp/lang/rust feeds/packages/lang
 rm -rf packages-temp
-echo "Rust/host $(grep "PKG_VERSION" feeds/packages/lang/rust/Makefile)"
+echo "Rust/host $(grep "PKG_VERSION:" feeds/packages/lang/rust/Makefile)"
