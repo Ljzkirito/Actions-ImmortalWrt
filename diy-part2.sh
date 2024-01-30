@@ -39,6 +39,13 @@ cp -r helloworld/luci-app-ssr-plus feeds/luci/applications
 cp -r helloworld/shadow-tls package
 rm -rf helloworld
 
+# Rust-host test
+git clone --depth=1 -b openwrt-23.05 https://github.com/immortalwrt/packages packages-temp
+echo "download rust/host form immortalwrt/packages-openwrt-23.05"
+cp -rv packages-temp/lang/rust feeds/packages/lang
+rm -rf packages-temp
+echo "Rust/host $(grep "PKG_VERSION:" feeds/packages/lang/rust/Makefile)"
+
 sed -i 's/192.168.1.1/192.168.5.1/g' package/base-files/files/bin/config_generate
 
 # Remove upx commands
