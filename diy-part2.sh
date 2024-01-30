@@ -45,6 +45,7 @@ echo "download rust/host form immortalwrt/packages-openwrt-23.05"
 cp -rv packages-temp/lang/rust feeds/packages/lang
 rm -rf packages-temp
 echo "Rust/host $(grep "PKG_VERSION:" feeds/packages/lang/rust/Makefile)"
+./scripts/feeds install -a
 
 sed -i 's/192.168.1.1/192.168.5.1/g' package/base-files/files/bin/config_generate
 
