@@ -44,6 +44,8 @@ cp -r openwrt-passwall-packages/sing-box package
 cp -r openwrt-passwall-packages/ssocks package
 rm -rf openwrt-passwall-packages
 
+./scripts/feeds install -a
+
 sed -i 's/192.168.1.1/192.168.5.1/g' package/base-files/files/bin/config_generate
 
 # Remove upx commands
