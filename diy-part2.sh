@@ -27,7 +27,7 @@ git clone https://github.com/Ljzkirito/smartdns-openwrt feeds/packages/net/smart
 
 # Replace luci-app-passwall
 rm -rf feeds/luci/applications/luci-app-passwall
-git clone --depth=1 -b main https://github.com/xiaorouji/openwrt-passwall feeds/luci/applications
+git clone --depth=1 -b main https://github.com/xiaorouji/openwrt-passwall package/openwrt-passwall
 
 # Replace passwall Depends
 git clone --depth=1 -b main https://github.com/xiaorouji/openwrt-passwall-packages
@@ -43,8 +43,6 @@ rm -rf feeds/packages/devel/gn && cp -r openwrt-passwall-packages/gn feeds/packa
 cp -r openwrt-passwall-packages/sing-box package
 cp -r openwrt-passwall-packages/ssocks package
 rm -rf openwrt-passwall-packages
-
-./scripts/feeds install -a
 
 sed -i 's/192.168.1.1/192.168.5.1/g' package/base-files/files/bin/config_generate
 
