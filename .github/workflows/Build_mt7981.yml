@@ -40,7 +40,7 @@ jobs:
     runs-on: ubuntu-22.04
     permissions:
       actions: write
-      contents: read
+      contents: write
   
     steps:
     - name: Checkout
