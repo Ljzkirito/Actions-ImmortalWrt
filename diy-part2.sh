@@ -30,6 +30,10 @@ Replace_package="xray-core xray-plugin v2ray-core v2ray-plugin hysteria ipt2sock
 ./scripts/feeds uninstall ${Replace_package}
 ./scripts/feeds install -f -p helloworld ${Replace_package}
 
+# Replace shadowsocks-rust
+rm -rfv feeds/packages/net/shadowsocks-rust
+git clone https://github.com/Ljzkirito/shadowsocks-rust feeds/packages/net/shadowsocks-rust
+
 sed -i 's/192.168.1.1/192.168.5.1/g' package/base-files/files/bin/config_generate
 
 #git clone --depth=1 -b master https://github.com/fw876/helloworld
