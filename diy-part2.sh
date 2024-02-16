@@ -29,6 +29,7 @@ cp -fv $GITHUB_WORKSPACE/smartdns-conf/smartdns.conf feeds/packages/net/smartdns
 Replace_package="xray-core xray-plugin v2ray-core v2ray-plugin hysteria ipt2socks microsocks redsocks2 chinadns-ng dns2socks dns2tcp naiveproxy simple-obfs tcping tuic-client luci-app-ssr-plus"
 ./scripts/feeds uninstall ${Replace_package}
 ./scripts/feeds install -f -p helloworld ${Replace_package}
+sed -i 's/Hhysteria2/hysteria2/g' feeds/helloworld/luci-app-ssr-plus/root/etc/init.d/shadowsocksr
 
 # Replace shadowsocks-rust
 rm -rfv feeds/packages/net/shadowsocks-rust
