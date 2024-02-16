@@ -10,6 +10,8 @@
 # Description: OpenWrt DIY script part 1 (Before Update feeds)
 #
 
+echo "src-git helloworld https://github.com/fw876/helloworld.git;master" >> "feeds.conf.default"
+
 # Replace /lib/netifd/ppp-down
 # https://github.com/hanwckf/immortalwrt-mt798x/issues/57
 cat >> package/network/services/ppp/files/lib/netifd/ppp-down <<EOF
