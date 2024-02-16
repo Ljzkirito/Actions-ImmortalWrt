@@ -152,7 +152,6 @@ jobs:
         echo "- factory.bin" >> release.txt
         echo "  360T7-md5: $(md5sum ${{ env.FIRMWARE }}/*360-t7*factory.bin | cut -d" " -f1)" >> release.txt
         echo "  WR30U-112m-md5: $(md5sum ${{ env.FIRMWARE }}/*112m*factory.bin | cut -d" " -f1)" >> release.txt
-        echo "  WR30U-stock-md5: $(md5sum ${{ env.FIRMWARE }}/*stock*factory.bin | cut -d" " -f1)" >> release.txt
         echo "- squashfs-sysupgrade.bin" >> release.txt
         echo "  360T7-md5: $(md5sum ${{ env.FIRMWARE }}/*360-t7*sysupgrade.bin | cut -d" " -f1)" >> release.txt
         echo "  360T7-sha256: $(grep ".*360-t7.*sysupgrade.bin" ${{ env.FIRMWARE }}/sha256sums | grep -oE "\w{64}")" >> release.txt
