@@ -29,3 +29,6 @@ EOF
 #当有线驱动使用ADMAv1时，每个PPE最多支持16384个Entry。每个NAT连接需要占用2个Entry（进站和出站方向）。
 sed -i 's/nf_conntrack_max=65536/nf_conntrack_max=16384/g' package/kernel/linux/files/sysctl-nf-conntrack.conf
 sed -i 's/nf_conntrack_buckets=65536/nf_conntrack_buckets=16384/g' package/kernel/linux/files/sysctl-nf-conntrack.conf
+# 取消Dnsmasq缓存，由smartdns负责。不修改ttl
+sed -i 's/cachesize\t8000/cachesize\t0/g' package/network/services/dnsmasq/files/dhcp.conf
+sed -i 's/mini_ttl\t3600/mini_ttl\t0/g' package/network/services/dnsmasq/files/dhcp.conf
