@@ -21,9 +21,9 @@ rm -rfv feeds/packages/net/mosdns
 find ./ | grep Makefile | grep luci-app-mosdns | xargs rm -fv
 git clone https://github.com/sbwml/luci-app-mosdns -b v5 package/mosdns
 
-# Replace Smartdns conf
-cp -fv $GITHUB_WORKSPACE/smartdns-conf/custom.conf feeds/packages/net/smartdns/conf
-cp -fv $GITHUB_WORKSPACE/smartdns-conf/smartdns.conf feeds/packages/net/smartdns/conf
+# Replace Smartdns
+./scripts/feeds uninstall luci-app-smartdns smartdns
+./scripts/feeds install -a -p customsd
 
 # Replace luci-app-ssr-plus & Depends
 Replace_package="xray-core xray-plugin v2ray-core v2ray-plugin hysteria ipt2socks microsocks redsocks2 chinadns-ng dns2socks dns2tcp naiveproxy simple-obfs tcping tuic-client luci-app-ssr-plus"
