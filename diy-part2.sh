@@ -10,7 +10,7 @@
 # Description: OpenWrt DIY script part 2 (After Update feeds)
 #
 
-# golang 1.21.x
+# golang 1.22.x
 rm -rfv feeds/packages/lang/golang
 git clone https://github.com/sbwml/packages_lang_golang -b 22.x feeds/packages/lang/golang
 
@@ -33,6 +33,10 @@ Replace_package="xray-core xray-plugin v2ray-core v2ray-plugin hysteria ipt2sock
 # Replace shadowsocks-rust
 rm -rfv feeds/packages/net/shadowsocks-rust
 git clone https://github.com/Ljzkirito/shadowsocks-rust feeds/packages/net/shadowsocks-rust
+
+# Replace adguardhome
+rm -rfv feeds/packages/net/adguardhome
+git clone https://github.com/Ljzkirito/adguardhome-openwrt feeds/packages/net/adguardhome
 
 sed -i 's/192.168.1.1/192.168.5.1/g' package/base-files/files/bin/config_generate
 
