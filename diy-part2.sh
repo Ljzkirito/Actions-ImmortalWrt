@@ -30,6 +30,10 @@ Replace_package="xray-core xray-plugin v2ray-core v2ray-plugin hysteria ipt2sock
 ./scripts/feeds uninstall ${Replace_package}
 ./scripts/feeds install -f -p helloworld ${Replace_package}
 
+# Remove useless patch
+rm -fv feeds/helloworld/xray-core/patches/010-go1.21.patch
+rm -fv feeds/helloworld/xray-plugin/patches/0001-fix-go-1.21-build-error.patch
+
 # Replace shadowsocks-rust
 rm -rfv feeds/packages/net/shadowsocks-rust
 git clone https://github.com/Ljzkirito/shadowsocks-rust feeds/packages/net/shadowsocks-rust
