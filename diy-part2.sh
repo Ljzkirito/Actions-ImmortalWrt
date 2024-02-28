@@ -31,8 +31,12 @@ Replace_package="xray-core xray-plugin v2ray-core v2ray-plugin hysteria ipt2sock
 ./scripts/feeds install -f -p helloworld ${Replace_package}
 
 # Remove useless patch
-rm -fv feeds/helloworld/xray-core/patches/010-go1.21.patch
-rm -fv feeds/helloworld/xray-plugin/patches/0001-fix-go-1.21-build-error.patch
+[ -e feeds/helloworld/xray-core/patches/010-go1.21.patch ] && rm -rfv feeds/helloworld/xray-core/patches
+[ -e feeds/helloworld/xray-plugin/patches/0001-fix-go-1.21-build-error.patch ] && rm -rfv feeds/helloworld/xray-plugin/patches
+
+# Remove 6in4
+sed -i 's/ +6in4//g' package/emortal/ipv6-helper/Makefile
+sed -i '/hotplug.d/d' package/emortal/ipv6-helper/Makefile
 
 # Replace shadowsocks-rust
 rm -rfv feeds/packages/net/shadowsocks-rust
