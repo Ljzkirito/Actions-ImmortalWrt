@@ -29,3 +29,8 @@ EOF
 # 取消Dnsmasq缓存，由smartdns负责。不修改ttl
 sed -i 's/cachesize\t8000/cachesize\t0/g' package/network/services/dnsmasq/files/dhcp.conf
 sed -i 's/mini_ttl\t3600/mini_ttl\t0/g' package/network/services/dnsmasq/files/dhcp.conf
+
+# Remove 6in4
+sed -i 's/ +6in4//g' package/emortal/ipv6-helper/Makefile
+sed -i '/hotplug.d/d' package/emortal/ipv6-helper/Makefile
+rm -fv package/emortal/ipv6-helper/files/60-6in4
