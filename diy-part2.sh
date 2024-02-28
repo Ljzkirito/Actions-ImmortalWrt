@@ -34,10 +34,6 @@ Replace_package="xray-core xray-plugin v2ray-core v2ray-plugin hysteria ipt2sock
 [ -e feeds/helloworld/xray-core/patches/010-go1.21.patch ] && rm -rfv feeds/helloworld/xray-core/patches
 [ -e feeds/helloworld/xray-plugin/patches/0001-fix-go-1.21-build-error.patch ] && rm -rfv feeds/helloworld/xray-plugin/patches
 
-# Remove 6in4
-sed -i 's/ +6in4//g' package/emortal/ipv6-helper/Makefile
-sed -i '/hotplug.d/d' package/emortal/ipv6-helper/Makefile
-
 # Replace shadowsocks-rust
 rm -rfv feeds/packages/net/shadowsocks-rust
 git clone https://github.com/Ljzkirito/shadowsocks-rust feeds/packages/net/shadowsocks-rust
