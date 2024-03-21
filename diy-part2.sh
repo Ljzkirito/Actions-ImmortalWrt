@@ -32,7 +32,7 @@ Replace_package="xray-core xray-plugin v2ray-core v2ray-plugin hysteria ipt2sock
 
 # Remove useless patch
 [ -e feeds/helloworld/xray-core/patches/010-go1.21.patch ] && rm -rfv feeds/helloworld/xray-core/patches
-[ -e feeds/helloworld/xray-plugin/patches/0001-fix-go-1.21-build-error.patch ] && rm -rfv feeds/helloworld/xray-plugin/patches
+[ -e feeds/helloworld/xray-plugin/patches/010-go1.21.patch ] && rm -rfv feeds/helloworld/xray-plugin/patches
 
 # Replace shadowsocks-rust
 rm -rfv feeds/packages/net/shadowsocks-rust
