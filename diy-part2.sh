@@ -10,9 +10,9 @@
 # Description: OpenWrt DIY script part 2 (After Update feeds)
 #
 
-# golang 1.22.x
+# golang 1.23.x
 rm -rfv feeds/packages/lang/golang
-git clone https://github.com/sbwml/packages_lang_golang -b 22.x feeds/packages/lang/golang
+git clone https://github.com/sbwml/packages_lang_golang -b 23.x feeds/packages/lang/golang
 
 # remove v2ray-geodata package from feeds (openwrt-22.03 & master)
 rm -rfv feeds/packages/net/v2ray-geodata
