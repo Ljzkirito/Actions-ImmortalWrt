@@ -20,7 +20,8 @@ rm -rf temp-smartdns
 
 # Replace luci-theme-argon
 rm -rfv feeds/luci/themes/luci-theme-argon
-git clone -b 1991a8e29ef6a086fb566517675edc85b1be629a https://github.com/jerrykuku/luci-theme-argon.git feeds/luci/themes/luci-theme-argon
+git clone https://github.com/jerrykuku/luci-theme-argon.git feeds/luci/themes/luci-theme-argon
+git -C feeds/luci/themes/luci-theme-argon checkout 1991a8e29ef6a086fb566517675edc85b1be629a
 
 sed -i 's/192.168.1.1/192.168.5.1/g' package/base-files/files/bin/config_generate
 
