@@ -205,7 +205,7 @@ jobs:
         mv ImmortalWrt/.config ImmortalWrt/build.config
 
     - name: Upload firmware to release
-      uses: softprops/action-gh-release@v2
+      uses: softprops/action-gh-release@v3
       if: steps.tag.outputs.status == 'success' && !cancelled()
       with:
         token: ${{ github.token }}

@@ -22,8 +22,12 @@ git clone https://github.com/sbwml/luci-app-mosdns -b v5 package/mosdns
 git clone https://github.com/sbwml/v2ray-geodata package/v2ray-geodata
 
 # Replace Smartdns
-#./scripts/feeds uninstall luci-app-smartdns smartdns
-#./scripts/feeds install -a -p customsd
+rm -rfv feeds/luci/applications/luci-app-smartdns
+rm -rfv feeds/packages/net/smartdns
+git clone --depth=1 -b PikuZheng https://github.com/Ljzkirito/smartdns-openwrt temp-smartdns
+mv -fv temp-smartdns/luci-app-smartdns feeds/luci/applications/
+mv -fv temp-smartdns/smartdns feeds/packages/net/
+rm -rf temp-smartdns
 
 # Replace luci-app-ssr-plus & Depends
 Replace_package="xray-core xray-plugin v2ray-core v2ray-plugin hysteria ipt2socks microsocks redsocks2 chinadns-ng dns2socks dns2tcp dnsproxy naiveproxy simple-obfs tcping tuic-client luci-app-ssr-plus lua-neturl gn trojan"
@@ -41,6 +45,7 @@ curl -L https://github.com/sbwml/openwrt_helloworld/raw/refs/heads/v5/shadowsock
 # Replace luci-theme-argon
 rm -rfv feeds/luci/themes/luci-theme-argon
 git clone https://github.com/jerrykuku/luci-theme-argon.git feeds/luci/themes/luci-theme-argon
+git -C feeds/luci/themes/luci-theme-argon checkout 1991a8e29ef6a086fb566517675edc85b1be629a
 
 # Replace natmap
 rm -rfv feeds/packages/net/natmap
@@ -73,3 +78,6 @@ sed -i 's/192.168.1.1/192.168.5.1/g' package/base-files/files/bin/config_generat
 #do
 #	[ -n "$(grep "upx" "$a")" ] && sed -i "/upx/d" "$a"
 #done
+
+#https://github.com/immortalwrt/packages/issues/1607
+#sed -i 's/--set=llvm\.download-ci-llvm=true/--set=llvm.download-ci-llvm=false/' feeds/packages/lang/rust/Makefile
