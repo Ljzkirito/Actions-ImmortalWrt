@@ -24,8 +24,8 @@ on:
           - 'false'
 
 env:
-  REPO_URL: https://github.com/Ljzkirito/immortalwrt-mt798x
-  REPO_BRANCH: wsk170
+  REPO_URL: https://github.com/hanwckf/immortalwrt-mt798x
+  REPO_BRANCH: openwrt-21.02
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: mt7981.config
   DIY_P1_SH: diy-part1.sh
