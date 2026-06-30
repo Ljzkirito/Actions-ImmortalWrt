@@ -1,0 +1,229 @@
+#
+# Copyright (c) 2019-2020 P3TERX <https://p3terx.com>
+#
+# This is free software, licensed under the MIT License.
+# See /LICENSE for more information.
+#
+# https://github.com/P3TERX/Actions-OpenWrt
+# Description: Build OpenWrt using GitHub Actions
+# 硬盘释放来自于https://github.com/klttr/ActionsBuildOpenWRT
+
+name: Build mt7981
+
+on:
+  repository_dispatch:
+  workflow_dispatch:
+    inputs:
+      Cache:
+        description: 'Using cache to speed up OpenWrt compilation.'
+        required: true
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+env:
+  REPO_URL: https://github.com/padavanonly/immortalwrt-mt798x-6.6
+  REPO_BRANCH: openwrt-24.10-6.6
+  FEEDS_CONF: feeds.conf.default
+  CONFIG_FILE: mt7981.config
+  DIY_P1_SH: diy-part1.sh
+  DIY_P2_SH: diy-part2.sh
+  UPLOAD_BIN_DIR: false
+  UPLOAD_FIRMWARE: true
+  UPLOAD_RELEASE: true
+  TZ: Asia/Shanghai
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: write
+      contents: write
+  
+    steps:
+    - name: Check Server Performance
+      run: |
+        echo "警告⚠"
+        echo "分配的服务器性能有限，若选择的插件过多，务必注意CPU性能！"
+        echo -e "已知CPU型号(降序): 7763，8370C，8272CL，8171M，E5-2673\n"
+        echo "--------------------------CPU信息--------------------------"
+        echo "CPU物理数量: $(cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l)"
+        echo "CPU核心数量: $(nproc)"
+        echo -e "CPU型号信息:$(cat /proc/cpuinfo | grep -m1 name | awk -F: '{print $2}')\n"
+        echo "--------------------------内存信息--------------------------"
+        echo "已安装内存详细信息:"
+        echo -e "$(sudo lshw -short -C memory | grep GiB)\n"
+        echo "--------------------------硬盘信息--------------------------"
+        echo "硬盘数量: $(ls /dev/sd* | grep -v [1-9] | wc -l)" && df -hT
+
+    - name: Optimize Disk Space
+      uses: hugoalh/disk-space-optimizer-ghaction@v0.8
+      with:
+        operate_sudo: "True"
+        general_include: ".+"
+        general_exclude: |-
+          ^GCC$
+          ^G\+\+$
+          Clang
+          LLVM
+        docker_include: ".+"
+        docker_prune: "True"
+        docker_clean: "True"
+        apt_prune: "True"
+        apt_clean: "True"
+        homebrew_prune: "True"
+        homebrew_clean: "True"
+        npm_prune: "True"
+        npm_clean: "True"
+        os_swap: "True"
+
+    - name: Initialization environment
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        sudo -E apt-get update -y
+        sudo -E apt-get full-upgrade -y
+        sudo -E apt-get install -y ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential \
+        bzip2 ccache clang cmake cpio curl device-tree-compiler ecj fastjar flex gawk gettext gcc-multilib \
+        g++-multilib git gnutls-dev gperf haveged help2man intltool lib32gcc-s1 libc6-dev-i386 libelf-dev \
+        libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses-dev libpython3-dev \
+        libreadline-dev libssl-dev libtool libyaml-dev libz-dev lld llvm lrzsz mkisofs msmtp nano \
+        ninja-build p7zip p7zip-full patch pkgconf python3 python3-pip python3-ply python3-docutils \
+        python3-pyelftools qemu-utils re2c rsync scons squashfs-tools subversion swig texinfo uglifyjs \
+        upx-ucl unzip vim wget xmlto xxd zlib1g-dev zstd
+        sudo -E apt-get -y autoremove --purge
+        sudo -E apt-get -y clean
+        sudo timedatectl set-timezone "$TZ"
+        sudo mkdir -p /workdir
+        sudo chown $USER:$GROUPS /workdir
+
+    - name: Checkout
+      uses: actions/checkout@main
+
+    - name: Clone source code
+      working-directory: /workdir
+      run: |
+        df -hT $PWD
+        git clone -b $REPO_BRANCH --depth=1 $REPO_URL ImmortalWrt
+        ln -sf /workdir/ImmortalWrt $GITHUB_WORKSPACE/ImmortalWrt
+
+    - name: Cache Toolchain
+      uses: HiGarfield/cachewrtbuild@main
+      if: github.event.inputs.Cache == 'true'
+      with:
+        ccache: 'false'
+        clean: 'false'
+        mixkey: 'aarch64'
+        prefix: ${{ github.workspace }}/ImmortalWrt
+
+    - name: Load custom feeds (DIY_P1_SH)
+      run: |
+        [ -e $FEEDS_CONF ] && mv $FEEDS_CONF ImmortalWrt/feeds.conf.default
+        chmod +x $DIY_P1_SH
+        cd ImmortalWrt
+        $GITHUB_WORKSPACE/$DIY_P1_SH
+
+    - name: Update feeds
+      run: cd ImmortalWrt && ./scripts/feeds update -a
+
+    - name: Install feeds
+      run: cd ImmortalWrt && ./scripts/feeds install -a
+
+    - name: Load custom configuration (DIY_P2_SH)
+      run: |
+        [ -e files ] && mv files ImmortalWrt/files
+        chmod +x $DIY_P2_SH
+        cd ImmortalWrt
+        $GITHUB_WORKSPACE/$DIY_P2_SH
+
+    - name: Download package
+      id: package
+      run: |
+        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE ImmortalWrt/.config
+        cd ImmortalWrt
+        make defconfig
+        make download -j8
+        find dl -size -1024c -exec ls -l {} \;
+        find dl -size -1024c -exec rm -f {} \;
+
+    - name: Compile the firmware
+      id: compile
+      run: |
+        cd ImmortalWrt
+        echo -e "$(nproc) thread compile"
+        make -j$(nproc) || make -j1 V=s
+        echo "status=success" >> $GITHUB_OUTPUT
+        echo "DEVICE_NAME=_mt7981" >> $GITHUB_ENV
+        echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
+
+    - name: Check space usage
+      if: (!cancelled())
+      run: df -hT
+
+    - name: Upload bin directory
+      uses: actions/upload-artifact@main
+      if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true'
+      with:
+        name: ImmortalWrt_bin${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
+        path: ImmortalWrt/bin
+
+    - name: Organize files
+      id: organize
+      if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
+      run: |
+        cd ImmortalWrt/bin/targets/*/*
+        rm -rf packages
+        echo "FIRMWARE=$PWD" >> $GITHUB_ENV
+        echo "status=success" >> $GITHUB_OUTPUT
+
+    - name: Upload firmware directory
+      uses: actions/upload-artifact@main
+      if: steps.organize.outputs.status == 'success' && !cancelled()
+      with:
+        name: ImmortalWrt_firmware${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
+        path: ${{ env.FIRMWARE }}
+
+    - name: Generate release tag
+      id: tag
+      if: env.UPLOAD_RELEASE == 'true' && steps.compile.outputs.status == 'success' && !cancelled()
+      run: |
+        echo "release_tag=$(date +"%Y.%m.%d-%H%M")" >> $GITHUB_OUTPUT
+        touch release.txt
+        echo "## padavanonly immortalwrt-mt798x-6.6 Release $(date +"%Y.%m.%d-%H:%M")" >> release.txt
+        echo "- factory.bin" >> release.txt
+        echo "  360T7-md5: $(md5sum ${{ env.FIRMWARE }}/*360-t7*factory.bin | cut -d" " -f1)" >> release.txt
+        echo "  WR30U-112m-md5: $(md5sum ${{ env.FIRMWARE }}/*112m*factory.bin | cut -d" " -f1)" >> release.txt
+        echo "- squashfs-sysupgrade.bin" >> release.txt
+        echo "  360T7-md5: $(md5sum ${{ env.FIRMWARE }}/*360-t7*sysupgrade.bin | cut -d" " -f1)" >> release.txt
+        echo "  360T7-sha256: $(grep ".*360-t7.*sysupgrade.bin" ${{ env.FIRMWARE }}/sha256sums | grep -oE "\w{64}")" >> release.txt
+        echo "  WR30U-112m-md5: $(md5sum ${{ env.FIRMWARE }}/*112m*sysupgrade.bin | cut -d" " -f1)" >> release.txt
+        echo "  WR30U-112m-sha256: $(grep ".*112m.*sysupgrade.bin" ${{ env.FIRMWARE }}/sha256sums | grep -oE "\w{64}")" >> release.txt
+        echo "  WR30U-stock-md5: $(md5sum ${{ env.FIRMWARE }}/*stock*sysupgrade.bin | cut -d" " -f1)" >> release.txt
+        echo "  WR30U-stock-sha256: $(grep ".*stock.*sysupgrade.bin" ${{ env.FIRMWARE }}/sha256sums | grep -oE "\w{64}")" >> release.txt
+        echo "status=success" >> $GITHUB_OUTPUT
+        mv ImmortalWrt/.config ImmortalWrt/build.config
+
+    - name: Upload firmware to release
+      uses: softprops/action-gh-release@v3
+      if: steps.tag.outputs.status == 'success' && !cancelled()
+      with:
+        token: ${{ github.token }}
+        tag_name: ${{ steps.tag.outputs.release_tag }}
+        body_path: release.txt
+        files: |
+          ${{ env.FIRMWARE }}/*factory.bin
+          ${{ env.FIRMWARE }}/*sysupgrade.bin
+          ImmortalWrt/build.config
+
+    - name: Remove old Releases and Workflows
+      uses: ophub/delete-releases-workflows@main
+      if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+      with:
+        delete_releases: true
+        releases_keep_latest: 5
+        delete_tags: true
+        delete_workflows: true
+        workflows_keep_day: 10
+        gh_token: ${{ github.token }}
