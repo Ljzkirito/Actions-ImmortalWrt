@@ -35,6 +35,6 @@ EOF
 
 # 进入仓库主分支后执行，直接应用Pull requests补丁
 # fix issue 353 and use swconfig to get port flow
-curl -sL https://github.com/hanwckf/immortalwrt-mt798x/pull/355.patch | git apply -
+curl -sL https://github.com/hanwckf/immortalwrt-mt798x/pull/355.patch | patch -p1
 # Fix 802.11k RRM_PeerNeighborReqAction snprintf error
-curl -sL https://github.com/hanwckf/immortalwrt-mt798x/pull/416.patch | git apply -
+curl -sL https://github.com/hanwckf/immortalwrt-mt798x/pull/416.patch | patch -p1
