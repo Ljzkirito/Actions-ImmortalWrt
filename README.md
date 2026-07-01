@@ -7,13 +7,25 @@
 ## Config文件生成参考
 
 - `make menuconfig` 可参考[OpenWrt MenuConfig设置和LuCI插件选项说明](https://mtom.ml/827.html)，一般先选`Target System`，`Subtarget`，`Target Profile`，再选`LUCI`插件。
-- .config文件生成可借助WSL（Ubuntu-22.04）或虚拟机，执行以下命令
+- .config文件生成可借助WSL（Ubuntu-26.04）、Multipass或虚拟机，执行以下命令
 ```
-sudo sed -i 's#http://archive.ubuntu.com#https://mirrors.huaweicloud.com#' /etc/apt/sources.list
-sudo sed -i 's#http://security.ubuntu.com#https://mirrors.huaweicloud.com#' /etc/apt/sources.list
+# 自动备份原文件为 ubuntu.sources.bak，同时替换两个源地址
+sudo sed -i.bak \
+  -e 's|http://archive.ubuntu.com/ubuntu|https://mirrors.tuna.tsinghua.edu.cn/ubuntu|g' \
+  -e 's|http://security.ubuntu.com/ubuntu|https://mirrors.tuna.tsinghua.edu.cn/ubuntu|g' \
+  /etc/apt/sources.list.d/ubuntu.sources
 sudo apt update
 sudo apt upgrade -y
 sudo apt-get -y install build-essential unzip libncurses-dev subversion
+dpkg -L gnu-coreutils | grep -i install
+sudo ln -sf /usr/bin/gnuinstall /usr/local/bin/install
+hash -r             # 清空命令缓存，立即生效
+which install       # 输出应为 /usr/local/bin/install
+install --version   # 输出包含 GNU coreutils 字样
+#Multipass proxy
+#ip route show default | awk '{print $3}'
+#git config --global http.proxy http://127.0.0.1:10808
+#git config --global https.proxy http://127.0.0.1:10808
 git clone --depth=1 https://github.com/padavanonly/immortalwrt-mt798x-6.6
 cd immortalwrt-mt798x-6.6
 ./scripts/feeds update -a && ./scripts/feeds install -a
