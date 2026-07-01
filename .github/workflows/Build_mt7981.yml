@@ -192,9 +192,6 @@ jobs:
         echo "release_tag=$(date +"%Y.%m.%d-%H%M")" >> $GITHUB_OUTPUT
         touch release.txt
         echo "## padavanonly immortalwrt-mt798x-6.6 Release $(date +"%Y.%m.%d-%H:%M")" >> release.txt
-        echo "- factory.bin" >> release.txt
-        echo "  360T7-md5: $(md5sum ${{ env.FIRMWARE }}/*360t7*factory.bin | cut -d" " -f1)" >> release.txt
-        echo "  wr30u-ubootmod-md5: $(md5sum ${{ env.FIRMWARE }}/*ubootmod*factory.bin | cut -d" " -f1)" >> release.txt
         echo "- squashfs-sysupgrade.bin" >> release.txt
         echo "  360T7-md5: $(md5sum ${{ env.FIRMWARE }}/*360t7*sysupgrade.bin | cut -d" " -f1)" >> release.txt
         echo "  360T7-sha256: $(grep ".*360t7.*sysupgrade.bin" ${{ env.FIRMWARE }}/sha256sums | grep -oE "\w{64}")" >> release.txt
@@ -213,7 +210,8 @@ jobs:
         tag_name: ${{ steps.tag.outputs.release_tag }}
         body_path: release.txt
         files: |
-          ${{ env.FIRMWARE }}/*factory.bin
+          ${{ env.FIRMWARE }}/*initramfs-kernel.bin
+          ${{ env.FIRMWARE }}/*initramfs-factory.ubi
           ${{ env.FIRMWARE }}/*sysupgrade.bin
           ImmortalWrt/build.config
 
