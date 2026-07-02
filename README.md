@@ -1,6 +1,6 @@
 # Github Actions ImmortalWrt 360T7&WR30U
 
-- ImmortalWrt源码是[hanwckf/immortalwrt-mt798x](https://github.com/hanwckf/immortalwrt-mt798x)，MTK SDK，[作者介绍](https://cmi.hanwckf.top/p/immortalwrt-mt798x)。
+- ImmortalWrt源码是[Yuzhii0718/immortalwrt-mt798x-hanwckf](https://github.com/Yuzhii0718/immortalwrt-mt798x-hanwckf)，MTK SDK。
 - Github Actions来自于[P3TERX/Actions-OpenWrt](https://github.com/P3TERX/Actions-OpenWrt)，[中文教程](https://p3terx.com/archives/build-openwrt-with-github-actions.html)。
 - 编译目标为360 T7/T7U/T7M & WR30U/T/M
 
@@ -14,8 +14,8 @@ sudo sed -i 's#http://security.ubuntu.com#https://mirrors.huaweicloud.com#' /etc
 sudo apt update
 sudo apt upgrade -y
 sudo apt-get -y install build-essential unzip libncurses-dev subversion
-git clone --depth=1 https://github.com/hanwckf/immortalwrt-mt798x.git
-cd immortalwrt-mt798x
+git clone --depth=1 https://github.com/Yuzhii0718/immortalwrt-mt798x-hanwckf.git
+cd immortalwrt-mt798x-hanwckf
 ./scripts/feeds update -a && ./scripts/feeds install -a
 cp -f defconfig/mt7981-ax3000.config .config
 make menuconfig
