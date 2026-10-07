@@ -1,29 +1,6 @@
-# Github Actions ImmortalWrt 360T7&WR30U
+# Github Actions PonWrt nokia_xg-040g-mf AN7583
 
-- ImmortalWrt源码是[Yuzhii0718/immortalwrt-mt798x-hanwckf](https://github.com/Yuzhii0718/immortalwrt-mt798x-hanwckf)，MTK SDK。
-- Github Actions来自于[P3TERX/Actions-OpenWrt](https://github.com/P3TERX/Actions-OpenWrt)，[中文教程](https://p3terx.com/archives/build-openwrt-with-github-actions.html)。
-- 编译目标为360 T7/T7U/T7M & WR30U/T/M
-
-## Config文件生成参考
-
-- `make menuconfig` 可参考[OpenWrt MenuConfig设置和LuCI插件选项说明](https://mtom.ml/827.html)，一般先选`Target System`，`Subtarget`，`Target Profile`，再选`LUCI`插件。
-- .config文件生成可借助WSL（Ubuntu-22.04）或虚拟机，执行以下命令
-```
-sudo sed -i 's#http://archive.ubuntu.com#https://mirrors.huaweicloud.com#' /etc/apt/sources.list
-sudo sed -i 's#http://security.ubuntu.com#https://mirrors.huaweicloud.com#' /etc/apt/sources.list
-sudo apt update
-sudo apt upgrade -y
-sudo apt-get -y install build-essential unzip libncurses-dev subversion
-git clone --depth=1 https://github.com/Yuzhii0718/immortalwrt-mt798x-hanwckf.git
-cd immortalwrt-mt798x-hanwckf
-./scripts/feeds update -a && ./scripts/feeds install -a
-cp -f defconfig/mt7981-ax3000.config .config
-make menuconfig
-make defconfig
-./scripts/diffconfig.sh > seed.config
-```
-进入目录`\\wsl$\Ubuntu*\home\*\immortalwrt-mt798x`复制一下这个`seed.config`的文本内容到项目根目录的`.config`文件中，方便查看修改。
-- 差分文件seed.config[参考来源](https://github.com/coolsnowwolf/lede/issues/2288)
+[PonWrt](https://github.com/pbs05/ponwrt)
 
 
 ## 相关参考

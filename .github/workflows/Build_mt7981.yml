@@ -186,7 +186,7 @@ jobs:
       run: |
         echo "release_tag=$(date +"%Y.%m.%d-%H%M")" >> $GITHUB_OUTPUT
         touch release.txt
-        echo "## PonWrt Release $(date +"%Y.%m.%d-%H:%M")" >> release.txt
+        echo "## PonWrt nokia_xg-040g-mf Release $(date +"%Y.%m.%d-%H:%M")" >> release.txt
         echo "status=success" >> $GITHUB_OUTPUT
         mv ImmortalWrt/.config ImmortalWrt/build.config
 
@@ -198,8 +198,7 @@ jobs:
         tag_name: ${{ steps.tag.outputs.release_tag }}
         body_path: release.txt
         files: |
-          ${{ env.FIRMWARE }}/*.bin
-          ${{ env.FIRMWARE }}/*.itb
+          ${{ env.FIRMWARE }}/*
           ImmortalWrt/build.config
 
     - name: Remove old Releases and Workflows
