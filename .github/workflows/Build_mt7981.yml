@@ -198,7 +198,7 @@ jobs:
         tag_name: ${{ steps.tag.outputs.release_tag }}
         body_path: release.txt
         files: |
-          ${{ env.FIRMWARE }}/*
+          ${{ env.FIRMWARE }}/*.itb
           ImmortalWrt/build.config
 
     - name: Remove old Releases and Workflows
