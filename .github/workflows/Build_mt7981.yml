@@ -80,6 +80,7 @@ jobs:
         os_swap: "True"
 
     - name: Initialization environment
+      timeout-minutes: 30
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
