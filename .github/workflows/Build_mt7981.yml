@@ -179,9 +179,9 @@ jobs:
         - \`initramfs-recovery\`：临时启动固件
         - \`squashfs-sysupgrade\`：日常升级固件
         - \`*.itb\`：UBI分区固件
-        - \`*.bin\`：stock分区固件
         - \`build.config\`：本次构建实际使用的完整配置
         - UBI分区固件请使用此处[uboot](https://github.com/Yuzhii0718/uboot-airoha-mediatek)文件
+        - 360t7转换UBI分区请参考[openwrt@b7af9b4](https://github.com/openwrt/openwrt/commit/b7af9b49f892f30a011f5cd5f7574a2e11fbb63e)
         EOF
         echo "status=success" >> $GITHUB_OUTPUT
         mv ImmortalWrt/.config ImmortalWrt/build.config
@@ -194,8 +194,8 @@ jobs:
         tag_name: ${{ steps.tag.outputs.release_tag }}
         body_path: release.txt
         files: |
-          ${{ env.FIRMWARE }}/*.itb
-          ${{ env.FIRMWARE }}/*.bin
+          ${{ env.FIRMWARE }}/immortalwrt*.itb
+          ${{ env.FIRMWARE }}/immortalwrt*.bin
           ImmortalWrt/build.config
 
     - name: Remove old Releases and Workflows
