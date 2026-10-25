@@ -55,3 +55,6 @@ sleep 1
 ubimkvol /dev/ubi0 -n 2 -s 0x1f000 -N ubootenv
 ubimkvol /dev/ubi0 -n 3 -s 0x1f000 -N ubootenv2
 sync
+
+echo Please check the UBI volume
+ubinfo -a
