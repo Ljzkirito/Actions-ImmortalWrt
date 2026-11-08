@@ -31,7 +31,6 @@ env:
   DIY_P1_SH: diy-part1.sh
   DIY_P2_SH: diy-part2.sh
   UPLOAD_BIN_DIR: false
-  UPLOAD_FIRMWARE: true
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
 
@@ -56,7 +55,7 @@ jobs:
         echo "已安装内存详细信息:"
         echo -e "$(sudo lshw -short -C memory | grep GiB)\n"
         echo "--------------------------硬盘信息--------------------------"
-        echo "硬盘数量: $(ls /dev/sd* | grep -v [1-9] | wc -l)" && df -hT
+        echo "硬盘数量: $(ls /dev/sd* 2>/dev/null | grep -v [1-9] | wc -l)" && df -hT
 
     - name: Optimize Disk Space
       uses: hugoalh/disk-space-optimizer-ghaction@v0.8
@@ -99,7 +98,7 @@ jobs:
         sudo chown $USER:$GROUPS /workdir
 
     - name: Checkout
-      uses: actions/checkout@main
+      uses: actions/checkout@v7
 
     - name: Clone source code
       working-directory: /workdir
@@ -137,8 +136,25 @@ jobs:
         cd ImmortalWrt
         $GITHUB_WORKSPACE/$DIY_P2_SH
 
+    - name: Free up disk space
+      run: |
+        set +e
+        sudo apt-get -y clean
+        sudo rm -rf /var/lib/apt/lists/* \
+                    /usr/share/dotnet \
+                    /opt/ghc \
+                    /usr/local/lib/android \
+                    /usr/local/share/boost \
+                    /opt/hostedtoolcache/CodeQL
+        sudo docker image prune -a -f
+        sudo journalctl --vacuum-size=50M
+        df -hT /
+        AVAIL=$(df -BG --output=avail /workdir | tail -n1 | tr -dc '0-9')
+        echo "Build volume free space: ${AVAIL} GB"
+
     - name: Download package
       id: package
+      timeout-minutes: 90
       run: |
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE ImmortalWrt/.config
         cd ImmortalWrt
@@ -149,6 +165,7 @@ jobs:
 
     - name: Compile the firmware
       id: compile
+      timeout-minutes: 180
       run: |
         cd ImmortalWrt
         echo -e "$(nproc) thread compile"
@@ -162,7 +179,7 @@ jobs:
       run: df -hT
 
     - name: Upload bin directory
-      uses: actions/upload-artifact@main
+      uses: actions/upload-artifact@v7
       if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true'
       with:
         name: ImmortalWrt_bin${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
@@ -170,7 +187,7 @@ jobs:
 
     - name: Organize files
       id: organize
-      if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
+      if: steps.compile.outputs.status == 'success' && !cancelled()
       run: |
         cd ImmortalWrt/bin/targets/*/*
         rm -rf packages
@@ -178,7 +195,7 @@ jobs:
         echo "status=success" >> $GITHUB_OUTPUT
 
     - name: Upload firmware directory
-      uses: actions/upload-artifact@main
+      uses: actions/upload-artifact@v7
       if: steps.organize.outputs.status == 'success' && !cancelled()
       with:
         name: ImmortalWrt_firmware${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
