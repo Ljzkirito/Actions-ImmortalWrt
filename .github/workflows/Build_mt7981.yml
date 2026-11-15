@@ -246,14 +246,26 @@ jobs:
       if: env.UPLOAD_RELEASE == 'true' && steps.compile.outputs.status == 'success' && !cancelled()
       run: |
         echo "release_tag=$(date +"%Y.%m.%d-%H%M")" >> $GITHUB_OUTPUT
-        touch release.txt
-        echo "## Yuzhii0718 ImmortalWrt mt7981 Release $(date +"%Y.%m.%d-%H:%M")" >> release.txt
-        echo "- factory.bin" >> release.txt
-        echo "  360T7-md5: $(md5sum ${{ env.FIRMWARE }}/*360-t7*factory.bin | cut -d" " -f1)" >> release.txt
-        echo "  WR30U-112m-md5: $(md5sum ${{ env.FIRMWARE }}/*112m*factory.bin | cut -d" " -f1)" >> release.txt
-        echo "- squashfs-sysupgrade.bin" >> release.txt
-        echo "  360T7-md5: $(md5sum ${{ env.FIRMWARE }}/*360-t7*sysupgrade.bin | cut -d" " -f1)" >> release.txt
-        echo "  WR30U-112m-md5: $(md5sum ${{ env.FIRMWARE }}/*112m*sysupgrade.bin | cut -d" " -f1)" >> release.txt
+
+        # Kernel version from the cloned source tree: include/kernel-5.4 -> LINUX_KERNEL_HASH-5.4.xxx = <hash>
+        KERNEL_VERSION=$(sed -n 's/^LINUX_KERNEL_HASH-\([0-9][0-9.]*\)[[:space:]]*=.*/\1/p' ImmortalWrt/include/kernel-5.4 2>/dev/null | head -n1)
+        KERNEL_VERSION="${KERNEL_VERSION:-unknown}"
+
+        cat > release.txt <<EOF
+        ## ImmortalWrt mt7981 360t7 & wr30u Release $(date +"%Y.%m.%d-%H:%M")
+
+        ### 构建信息
+        - 源码仓库: $REPO_URL/tree/$REPO_BRANCH
+        - 源码分支: $REPO_BRANCH
+        - 配置文件: $CONFIG_FILE
+        - 内核版本: $KERNEL_VERSION
+        - 编译缓存: ${{ github.event.inputs.Cache }}
+        - MEMORY_SHRINK_AGGRESS: ${{ github.event.inputs.MEMORY_SHRINK_AGGRESS }}
+        - ZRAM_SWAP: ${{ github.event.inputs.ZRAM_SWAP }}
+        - IPTV_PACKAGES: ${{ github.event.inputs.IPTV_PACKAGES }}
+        - MTKHQOS: ${{ github.event.inputs.MTKHQOS }}
+        EOF
+
         echo "status=success" >> $GITHUB_OUTPUT
         mv ImmortalWrt/.config ImmortalWrt/build.config
 
@@ -265,8 +277,7 @@ jobs:
         tag_name: ${{ steps.tag.outputs.release_tag }}
         body_path: release.txt
         files: |
-          ${{ env.FIRMWARE }}/*factory.bin
-          ${{ env.FIRMWARE }}/*sysupgrade.bin
+          ${{ env.FIRMWARE }}/immortalwrt*.bin
           ImmortalWrt/build.config
 
     - name: Remove old Releases and Workflows
