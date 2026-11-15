@@ -19,7 +19,7 @@ sed -i 's/ +6in4//g' package/emortal/ipv6-helper/Makefile
 sed -i '/hotplug.d/d' package/emortal/ipv6-helper/Makefile
 rm -fv package/emortal/ipv6-helper/files/60-6in4
 
-cat >> package/mtk/drivers/mt_wifi/patches-7673/022-Increase-token-rx-cnt.patch <<EOF
+cat >> package/mtk/drivers/mt_wifi/patches-7673/999-Increase-token-rx-cnt.patch <<EOF
 --- a/mt_wifi/chips/mt7981.c
 +++ b/mt_wifi/chips/mt7981.c
 @@ -11711,7 +11711,7 @@
