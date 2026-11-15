@@ -25,6 +25,10 @@ on:
         description: 'Enable zram-swap (CONFIG_PACKAGE_zram-swap)'
         default: false
         type: boolean
+      IPTV_PACKAGES:
+        description: 'include IPTV packages (luci-app-msd_lite & luci-app-omcproxy)'
+        default: false
+        type: boolean
 
 env:
   REPO_URL: https://github.com/Yuzhii0718/immortalwrt-mt798x-hanwckf
@@ -136,6 +140,9 @@ jobs:
         set -e
         [ -f "$CONFIG_FILE" ] || { echo "Configuration file $CONFIG_FILE not found"; exit 1; }
 
+        # Remove kmod-tun / kmod-warp packages
+        sed -i -e '/CONFIG_PACKAGE_kmod-tun/d' -e '/CONFIG_PACKAGE_kmod-warp/d' "$CONFIG_FILE"
+
         # CONFIG_MTK_MEMORY_SHRINK_AGGRESS
         sed -i '/CONFIG_MTK_MEMORY_SHRINK_AGGRESS/d' "$CONFIG_FILE"
         if [ "${{ github.event.inputs.MEMORY_SHRINK_AGGRESS }}" = "true" ]; then
@@ -152,7 +159,17 @@ jobs:
           echo "# CONFIG_PACKAGE_zram-swap is not set" >> "$CONFIG_FILE"
         fi
 
-        grep -n -E "CONFIG_(MTK_MEMORY_SHRINK_AGGRESS|PACKAGE_kmod-zram|PACKAGE_zram-swap)" "$CONFIG_FILE" || true
+        # IPTV (luci-app-msd_lite + luci-app-omcproxy)
+        sed -i -e '/CONFIG_PACKAGE_luci-app-msd_lite/d' -e '/CONFIG_PACKAGE_luci-app-omcproxy/d' "$CONFIG_FILE"
+        if [ "${{ github.event.inputs.IPTV_PACKAGES }}" = "true" ]; then
+          echo "CONFIG_PACKAGE_luci-app-msd_lite=y" >> "$CONFIG_FILE"
+          echo "CONFIG_PACKAGE_luci-app-omcproxy=y" >> "$CONFIG_FILE"
+        else
+          echo "# CONFIG_PACKAGE_luci-app-msd_lite is not set" >> "$CONFIG_FILE"
+          echo "# CONFIG_PACKAGE_luci-app-omcproxy is not set" >> "$CONFIG_FILE"
+        fi
+
+        grep -n -E "CONFIG_(MTK_MEMORY_SHRINK_AGGRESS|PACKAGE_kmod-zram|PACKAGE_zram-swap|PACKAGE_luci-app-msd_lite|PACKAGE_luci-app-omcproxy)" "$CONFIG_FILE" || true
 
     - name: Download package
       id: package
