@@ -123,6 +123,7 @@ jobs:
       run: |
         [ -e $FEEDS_CONF ] && mv $FEEDS_CONF ImmortalWrt/feeds.conf.default
         chmod +x $DIY_P1_SH
+        [ -e "${DIY_P1_SH}.${{ github.event.inputs.REPO }}" ] && cat "${DIY_P1_SH}.${{ github.event.inputs.REPO }}" >> "$DIY_P1_SH"
         cd ImmortalWrt
         $GITHUB_WORKSPACE/$DIY_P1_SH
 
@@ -136,6 +137,7 @@ jobs:
       run: |
         [ -e files ] && mv files ImmortalWrt/files
         chmod +x $DIY_P2_SH
+        [ -e "${DIY_P2_SH}.${{ github.event.inputs.REPO }}" ] && cat "${DIY_P2_SH}.${{ github.event.inputs.REPO }}" >> "$DIY_P2_SH"
         cd ImmortalWrt
         $GITHUB_WORKSPACE/$DIY_P2_SH
 
@@ -285,6 +287,7 @@ jobs:
         - 源码 Commit: $SOURCE_COMMIT
         - 配置文件: $CONFIG_FILE
         - 内核版本: $KERNEL_VERSION
+        - 后台地址: 192.168.6.1
         - 编译缓存: ${{ github.event.inputs.Cache }}
         - MEMORY_SHRINK_AGGRESS: ${{ github.event.inputs.MEMORY_SHRINK_AGGRESS }}
         - ZRAM_SWAP: ${{ github.event.inputs.ZRAM_SWAP }}
