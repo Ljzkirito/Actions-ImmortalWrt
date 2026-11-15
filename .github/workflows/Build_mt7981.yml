@@ -13,12 +13,19 @@ name: Build mt7981
 on:
   workflow_dispatch:
     inputs:
+      REPO:
+        description: 'Source repository'
+        default: Yuzhii0718
+        options:
+          - hanwckf
+          - Yuzhii0718
+        type: choice
       Cache:
         description: 'Using cache to speed up OpenWrt compilation.'
         default: false
         type: boolean
       MEMORY_SHRINK_AGGRESS:
-        description: 'CONFIG_MTK_MEMORY_SHRINK_AGGRESS'
+        description: 'CONFIG_MTK_MEMORY_SHRINK_AGGRESS (Free up about 40M)'
         default: true
         type: boolean
       ZRAM_SWAP:
@@ -35,10 +42,10 @@ on:
         type: boolean
 
 env:
-  REPO_URL: https://github.com/Yuzhii0718/immortalwrt-mt798x-hanwckf
+  REPO_URL1: https://github.com/hanwckf/immortalwrt-mt798x
+  REPO_URL2: https://github.com/Yuzhii0718/immortalwrt-mt798x-hanwckf
   REPO_BRANCH: openwrt-21.02
   FEEDS_CONF: feeds.conf.default
-  CONFIG_FILE: mt7981.config
   DIY_P1_SH: scripts/diy-part1.sh
   DIY_P2_SH: scripts/diy-part2.sh
   UPLOAD_BIN_DIR: false
@@ -91,6 +98,15 @@ jobs:
       working-directory: /workdir
       run: |
         df -hT $PWD
+        if [ "${{ github.event.inputs.REPO }}" = "hanwckf" ]; then
+          REPO_URL="$REPO_URL1"
+          CONFIG_FILE="configs/mt7981-hanwckf.config"
+        else
+          REPO_URL="$REPO_URL2"
+          CONFIG_FILE="configs/mt7981-Yuzhii0718.config"
+        fi
+        echo "REPO_URL=$REPO_URL" >> "$GITHUB_ENV"
+        echo "CONFIG_FILE=$CONFIG_FILE" >> "$GITHUB_ENV"
         git clone -b $REPO_BRANCH --depth=1 $REPO_URL ImmortalWrt
         ln -sf /workdir/ImmortalWrt $GITHUB_WORKSPACE/ImmortalWrt
 
@@ -139,7 +155,7 @@ jobs:
         AVAIL=$(df -BG --output=avail /workdir | tail -n1 | tr -dc '0-9')
         echo "Build volume free space: ${AVAIL} GB"
 
-    - name: Configure MEMORY SHRINK AGGRESS
+    - name: Configure firmware options
       run: |
         set -e
         [ -f "$CONFIG_FILE" ] || { echo "Configuration file $CONFIG_FILE not found"; exit 1; }
@@ -276,7 +292,7 @@ jobs:
         - MTKHQOS: ${{ github.event.inputs.MTKHQOS }}
 
         ### 适配的 BL2 + U-Boot
-        - 适配的 BL2 + U-Boot（stock/custom partition layout, enable MTK-NMBM）：
+        - stock/custom partition layout, enable MTK-NMBM：
           1. https://github.com/hanwckf/bl-mt798x
           2. https://github.com/Yuzhii0718/bl-mt798x-dhcpd
              - Variant：default
