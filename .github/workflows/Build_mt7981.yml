@@ -26,7 +26,11 @@ on:
         default: false
         type: boolean
       IPTV_PACKAGES:
-        description: 'include IPTV packages (luci-app-msd_lite & luci-app-omcproxy)'
+        description: 'Include IPTV packages (luci-app-msd_lite & luci-app-omcproxy)'
+        default: false
+        type: boolean
+      MTKHQOS:
+        description: 'Enable MTK HQoS (luci-app-eqos-mtk & mtkhqos_util)'
         default: false
         type: boolean
 
@@ -140,11 +144,21 @@ jobs:
         set -e
         [ -f "$CONFIG_FILE" ] || { echo "Configuration file $CONFIG_FILE not found"; exit 1; }
 
-        # Remove kmod-tun / kmod-warp packages
-        sed -i -e '/CONFIG_PACKAGE_kmod-tun/d' -e '/CONFIG_PACKAGE_kmod-warp/d' "$CONFIG_FILE"
+        # Remove stale entries for every option governed below, then append fresh ones
+        for cfg in \
+          CONFIG_PACKAGE_kmod-tun \
+          CONFIG_PACKAGE_kmod-warp \
+          CONFIG_MTK_MEMORY_SHRINK_AGGRESS \
+          CONFIG_PACKAGE_kmod-zram \
+          CONFIG_PACKAGE_zram-swap \
+          CONFIG_PACKAGE_luci-app-msd_lite \
+          CONFIG_PACKAGE_luci-app-omcproxy \
+          CONFIG_PACKAGE_mtkhqos_util \
+          CONFIG_PACKAGE_luci-app-eqos-mtk; do
+          sed -i "/$cfg/d" "$CONFIG_FILE"
+        done
 
         # CONFIG_MTK_MEMORY_SHRINK_AGGRESS
-        sed -i '/CONFIG_MTK_MEMORY_SHRINK_AGGRESS/d' "$CONFIG_FILE"
         if [ "${{ github.event.inputs.MEMORY_SHRINK_AGGRESS }}" = "true" ]; then
           echo "CONFIG_MTK_MEMORY_SHRINK_AGGRESS=y" >> "$CONFIG_FILE"
         else
@@ -152,7 +166,6 @@ jobs:
         fi
 
         # zram-swap (kmod-zram is pulled in automatically as its dependency)
-        sed -i -e '/CONFIG_PACKAGE_kmod-zram/d' -e '/CONFIG_PACKAGE_zram-swap/d' "$CONFIG_FILE"
         if [ "${{ github.event.inputs.ZRAM_SWAP }}" = "true" ]; then
           echo "CONFIG_PACKAGE_zram-swap=y" >> "$CONFIG_FILE"
         else
@@ -160,7 +173,6 @@ jobs:
         fi
 
         # IPTV (luci-app-msd_lite + luci-app-omcproxy)
-        sed -i -e '/CONFIG_PACKAGE_luci-app-msd_lite/d' -e '/CONFIG_PACKAGE_luci-app-omcproxy/d' "$CONFIG_FILE"
         if [ "${{ github.event.inputs.IPTV_PACKAGES }}" = "true" ]; then
           echo "CONFIG_PACKAGE_luci-app-msd_lite=y" >> "$CONFIG_FILE"
           echo "CONFIG_PACKAGE_luci-app-omcproxy=y" >> "$CONFIG_FILE"
@@ -169,7 +181,16 @@ jobs:
           echo "# CONFIG_PACKAGE_luci-app-omcproxy is not set" >> "$CONFIG_FILE"
         fi
 
-        grep -n -E "CONFIG_(MTK_MEMORY_SHRINK_AGGRESS|PACKAGE_kmod-zram|PACKAGE_zram-swap|PACKAGE_luci-app-msd_lite|PACKAGE_luci-app-omcproxy)" "$CONFIG_FILE" || true
+        # MTK HQoS (luci-app-eqos-mtk + mtkhqos_util)
+        if [ "${{ github.event.inputs.MTKHQOS }}" = "true" ]; then
+          echo "CONFIG_PACKAGE_luci-app-eqos-mtk=y" >> "$CONFIG_FILE"
+          echo "CONFIG_PACKAGE_mtkhqos_util=y" >> "$CONFIG_FILE"
+        else
+          echo "# CONFIG_PACKAGE_luci-app-eqos-mtk is not set" >> "$CONFIG_FILE"
+          echo "# CONFIG_PACKAGE_mtkhqos_util is not set" >> "$CONFIG_FILE"
+        fi
+
+        grep -n -E "CONFIG_(MTK_MEMORY_SHRINK_AGGRESS|PACKAGE_kmod-zram|PACKAGE_zram-swap|PACKAGE_luci-app-msd_lite|PACKAGE_luci-app-omcproxy|PACKAGE_luci-app-eqos-mtk|PACKAGE_mtkhqos_util)" "$CONFIG_FILE" || true
 
     - name: Download package
       id: package
