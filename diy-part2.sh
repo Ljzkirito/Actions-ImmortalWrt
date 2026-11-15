@@ -21,3 +21,6 @@ if [ -d feeds/luci/applications/luci-app-argon-config ]; then
 else
   echo "luci-app-argon-config not found, skip"
 fi
+
+#https://github.com/immortalwrt/packages/issues/1607
+sed -i 's/--set=llvm\.download-ci-llvm=true/--set=llvm.download-ci-llvm=false/' feeds/packages/lang/rust/Makefile
