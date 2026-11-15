@@ -11,19 +11,18 @@
 name: Build mt7981
 
 on:
-  repository_dispatch:
   workflow_dispatch:
     inputs:
       Cache:
         description: 'Using cache to speed up OpenWrt compilation.'
-        required: true
-        default: 'true'
-        type: choice
-        options:
-          - 'true'
-          - 'false'
+        default: false
+        type: boolean
       MEMORY_SHRINK_AGGRESS:
         description: 'CONFIG_MTK_MEMORY_SHRINK_AGGRESS'
+        default: true
+        type: boolean
+      ZRAM_SWAP:
+        description: 'Enable zram-swap (CONFIG_PACKAGE_zram-swap)'
         default: false
         type: boolean
 
@@ -133,19 +132,27 @@ jobs:
         echo "Build volume free space: ${AVAIL} GB"
 
     - name: Configure MEMORY SHRINK AGGRESS
-      env:
-        MEMORY_SHRINK_AGGRESS: ${{ github.event.inputs.MEMORY_SHRINK_AGGRESS }}
       run: |
         set -e
         [ -f "$CONFIG_FILE" ] || { echo "Configuration file $CONFIG_FILE not found"; exit 1; }
-        # Drop any existing CONFIG_MTK_MEMORY_SHRINK_AGGRESS line first
+
+        # CONFIG_MTK_MEMORY_SHRINK_AGGRESS
         sed -i '/CONFIG_MTK_MEMORY_SHRINK_AGGRESS/d' "$CONFIG_FILE"
-        if [ "$MEMORY_SHRINK_AGGRESS" = "true" ]; then
+        if [ "${{ github.event.inputs.MEMORY_SHRINK_AGGRESS }}" = "true" ]; then
           echo "CONFIG_MTK_MEMORY_SHRINK_AGGRESS=y" >> "$CONFIG_FILE"
         else
           echo "# CONFIG_MTK_MEMORY_SHRINK_AGGRESS is not set" >> "$CONFIG_FILE"
         fi
-        grep -n "CONFIG_MTK_MEMORY_SHRINK_AGGRESS" "$CONFIG_FILE" || true
+
+        # zram-swap (kmod-zram is pulled in automatically as its dependency)
+        sed -i -e '/CONFIG_PACKAGE_kmod-zram/d' -e '/CONFIG_PACKAGE_zram-swap/d' "$CONFIG_FILE"
+        if [ "${{ github.event.inputs.ZRAM_SWAP }}" = "true" ]; then
+          echo "CONFIG_PACKAGE_zram-swap=y" >> "$CONFIG_FILE"
+        else
+          echo "# CONFIG_PACKAGE_zram-swap is not set" >> "$CONFIG_FILE"
+        fi
+
+        grep -n -E "CONFIG_(MTK_MEMORY_SHRINK_AGGRESS|PACKAGE_kmod-zram|PACKAGE_zram-swap)" "$CONFIG_FILE" || true
 
     - name: Download package
       id: package
