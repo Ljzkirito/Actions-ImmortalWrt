@@ -39,8 +39,8 @@ env:
   REPO_BRANCH: openwrt-21.02
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: mt7981.config
-  DIY_P1_SH: diy-part1.sh
-  DIY_P2_SH: diy-part2.sh
+  DIY_P1_SH: scripts/diy-part1.sh
+  DIY_P2_SH: scripts/diy-part2.sh
   UPLOAD_BIN_DIR: false
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
@@ -68,12 +68,15 @@ jobs:
         echo "--------------------------硬盘信息--------------------------"
         echo "硬盘数量: $(ls /dev/sd* 2>/dev/null | grep -v [1-9] | wc -l)" && df -hT
 
+    - name: Checkout
+      uses: actions/checkout@v7
+
     - name: Initialization environment
       timeout-minutes: 30
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
-        sudo bash -c 'bash <(curl -s https://build-scripts.immortalwrt.org/init_build_environment.sh)'
+        sudo bash "$GITHUB_WORKSPACE/scripts/init.sh"
         sudo -E apt -yqq install dos2unix
         sudo -E apt -yqq install libfuse-dev
         sudo -E apt -yqq autoremove --purge
@@ -83,9 +86,6 @@ jobs:
         sudo timedatectl set-timezone "$TZ"
         sudo mkdir -p /workdir
         sudo chown "$USER:$(id -g)" /workdir
-
-    - name: Checkout
-      uses: actions/checkout@v7
 
     - name: Clone source code
       working-directory: /workdir

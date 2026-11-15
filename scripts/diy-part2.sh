@@ -24,4 +24,5 @@ git clone https://github.com/jerrykuku/luci-theme-argon.git feeds/luci/themes/lu
 git -C feeds/luci/themes/luci-theme-argon checkout 1991a8e29ef6a086fb566517675edc85b1be629a
 
 #https://github.com/immortalwrt/packages/issues/1607
-#sed -i 's/--set=llvm\.download-ci-llvm=true/--set=llvm.download-ci-llvm=false/' feeds/packages/lang/rust/Makefile
+#Fix Rust compilation failure
+sed -i 's/--set=llvm\.download-ci-llvm=true/--set=llvm.download-ci-llvm=false/' feeds/packages/lang/rust/Makefile
