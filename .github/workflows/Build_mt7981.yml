@@ -122,10 +122,12 @@ jobs:
     - name: Load custom feeds (DIY_P1_SH)
       run: |
         [ -e $FEEDS_CONF ] && mv $FEEDS_CONF ImmortalWrt/feeds.conf.default
-        chmod +x $DIY_P1_SH
-        [ -e "${DIY_P1_SH}.${{ github.event.inputs.REPO }}" ] && cat "${DIY_P1_SH}.${{ github.event.inputs.REPO }}" >> "$DIY_P1_SH"
         cd ImmortalWrt
-        $GITHUB_WORKSPACE/$DIY_P1_SH
+        chmod +x "$GITHUB_WORKSPACE/$DIY_P1_SH" && "$GITHUB_WORKSPACE/$DIY_P1_SH"
+        overlay="$GITHUB_WORKSPACE/${DIY_P1_SH%.sh}.d/${{ github.event.inputs.REPO }}.sh"
+        if [ -e "$overlay" ]; then
+          chmod +x "$overlay" && "$overlay"
+        fi
 
     - name: Update feeds
       run: cd ImmortalWrt && ./scripts/feeds update -a
@@ -136,10 +138,12 @@ jobs:
     - name: Load custom configuration (DIY_P2_SH)
       run: |
         [ -e files ] && mv files ImmortalWrt/files
-        chmod +x $DIY_P2_SH
-        [ -e "${DIY_P2_SH}.${{ github.event.inputs.REPO }}" ] && cat "${DIY_P2_SH}.${{ github.event.inputs.REPO }}" >> "$DIY_P2_SH"
         cd ImmortalWrt
-        $GITHUB_WORKSPACE/$DIY_P2_SH
+        chmod +x "$GITHUB_WORKSPACE/$DIY_P2_SH" && "$GITHUB_WORKSPACE/$DIY_P2_SH"
+        overlay="$GITHUB_WORKSPACE/${DIY_P2_SH%.sh}.d/${{ github.event.inputs.REPO }}.sh"
+        if [ -e "$overlay" ]; then
+          chmod +x "$overlay" && "$overlay"
+        fi
 
     - name: Free up disk space
       run: |
@@ -175,6 +179,11 @@ jobs:
           CONFIG_PACKAGE_luci-app-eqos-mtk; do
           sed -i "/$cfg/d" "$CONFIG_FILE"
         done
+
+        # Make sure appends start on a new line even if the file has no trailing newline
+        if [ -n "$(tail -c 1 "$CONFIG_FILE")" ]; then
+          echo >> "$CONFIG_FILE"
+        fi
 
         # CONFIG_MTK_MEMORY_SHRINK_AGGRESS
         if [ "${{ github.event.inputs.MEMORY_SHRINK_AGGRESS }}" = "true" ]; then
