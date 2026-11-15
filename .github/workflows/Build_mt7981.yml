@@ -22,6 +22,10 @@ on:
         options:
           - 'true'
           - 'false'
+      MEMORY_SHRINK_AGGRESS:
+        description: 'CONFIG_MTK_MEMORY_SHRINK_AGGRESS'
+        default: false
+        type: boolean
 
 env:
   REPO_URL: https://github.com/Yuzhii0718/immortalwrt-mt798x-hanwckf
@@ -127,6 +131,21 @@ jobs:
         df -hT /
         AVAIL=$(df -BG --output=avail /workdir | tail -n1 | tr -dc '0-9')
         echo "Build volume free space: ${AVAIL} GB"
+
+    - name: Configure MEMORY SHRINK AGGRESS
+      env:
+        MEMORY_SHRINK_AGGRESS: ${{ github.event.inputs.MEMORY_SHRINK_AGGRESS }}
+      run: |
+        set -e
+        [ -f "$CONFIG_FILE" ] || { echo "Configuration file $CONFIG_FILE not found"; exit 1; }
+        # Drop any existing CONFIG_MTK_MEMORY_SHRINK_AGGRESS line first
+        sed -i '/CONFIG_MTK_MEMORY_SHRINK_AGGRESS/d' "$CONFIG_FILE"
+        if [ "$MEMORY_SHRINK_AGGRESS" = "true" ]; then
+          echo "CONFIG_MTK_MEMORY_SHRINK_AGGRESS=y" >> "$CONFIG_FILE"
+        else
+          echo "# CONFIG_MTK_MEMORY_SHRINK_AGGRESS is not set" >> "$CONFIG_FILE"
+        fi
+        grep -n "CONFIG_MTK_MEMORY_SHRINK_AGGRESS" "$CONFIG_FILE" || true
 
     - name: Download package
       id: package
