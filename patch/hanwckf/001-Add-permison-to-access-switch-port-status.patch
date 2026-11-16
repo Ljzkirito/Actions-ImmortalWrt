@@ -1,0 +1,35 @@
+From bd5abe28cbe795607a921d2de801ce40855a4085 Mon Sep 17 00:00:00 2001
+From: wsk170 <wsk170@gmail.com>
+Date: Sat, 14 Dec 2024 23:44:02 +0800
+Subject: [PATCH] Add permison to access switch port status
+
+---
+ .../generic/luci-mod-status-autocore.json     | 19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
+
+diff --git a/package/emortal/autocore/files/generic/luci-mod-status-autocore.json b/package/emortal/autocore/files/generic/luci-mod-status-autocore.json
+index c9b930e1daa..0509591464b 100644
+--- a/package/emortal/autocore/files/generic/luci-mod-status-autocore.json
++++ b/package/emortal/autocore/files/generic/luci-mod-status-autocore.json
+@@ -1,10 +1,13 @@
+ {
+-	"luci-mod-status-autocore": {
+-		"description": "Grant access to autocore",
+-		"read": {
+-			"ubus": {
+-				"luci": [ "getCPUInfo", "getETHInfo", "getTempInfo" ]
+-			}
+-		}
+-	}
++  "luci-mod-status-autocore": {
++    "description": "Grant access to autocore",
++    "read": {
++      "ubus": {
++        "luci": ["getCPUInfo", "getETHInfo", "getTempInfo"]
++      },
++      "file": {
++        "/sbin/swconfig dev switch0 show": ["exec"]
++      }
++    }
++  }
+ }

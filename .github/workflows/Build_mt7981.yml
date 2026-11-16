@@ -110,6 +110,35 @@ jobs:
         git clone -b $REPO_BRANCH --depth=1 $REPO_URL ImmortalWrt
         ln -sf /workdir/ImmortalWrt $GITHUB_WORKSPACE/ImmortalWrt
 
+    - name: Apply patches
+      run: |
+        set -euo pipefail
+        REPO="${{ github.event.inputs.REPO }}"
+        PATCH_DIR="$GITHUB_WORKSPACE/patch/$REPO"
+
+        if [ ! -d "$PATCH_DIR" ]; then
+          echo "No patch directory for source repository '$REPO' ($PATCH_DIR), skipping."
+          exit 0
+        fi
+
+        shopt -s nullglob
+        PATCHES=("$PATCH_DIR"/*.patch)
+        if [ ${#PATCHES[@]} -eq 0 ]; then
+          echo "Patch directory exists but contains no .patch files ($PATCH_DIR), skipping."
+          exit 0
+        fi
+
+        echo "Applying ${#PATCHES[@]} patch(es) from $PATCH_DIR to ImmortalWrt"
+        cd ImmortalWrt
+
+        # Apply in filename order (001-..., 002-..., ...)
+        while IFS= read -r p; do
+          echo "Applying patch: $(basename "$p")"
+          patch -p1 --batch --forward < "$p"
+        done < <(printf '%s\n' "${PATCHES[@]}" | LC_ALL=C sort)
+
+        echo "All patches from $PATCH_DIR applied successfully."
+
     - name: Cache Toolchain
       uses: HiGarfield/cachewrtbuild@main
       if: github.event.inputs.Cache == 'true'
@@ -122,12 +151,9 @@ jobs:
     - name: Load custom feeds (DIY_P1_SH)
       run: |
         [ -e $FEEDS_CONF ] && mv $FEEDS_CONF ImmortalWrt/feeds.conf.default
+        chmod +x $DIY_P1_SH
         cd ImmortalWrt
-        chmod +x "$GITHUB_WORKSPACE/$DIY_P1_SH" && "$GITHUB_WORKSPACE/$DIY_P1_SH"
-        overlay="$GITHUB_WORKSPACE/${DIY_P1_SH%.sh}.d/${{ github.event.inputs.REPO }}.sh"
-        if [ -e "$overlay" ]; then
-          chmod +x "$overlay" && "$overlay"
-        fi
+        $GITHUB_WORKSPACE/$DIY_P1_SH
 
     - name: Update feeds
       run: cd ImmortalWrt && ./scripts/feeds update -a
@@ -138,12 +164,9 @@ jobs:
     - name: Load custom configuration (DIY_P2_SH)
       run: |
         [ -e files ] && mv files ImmortalWrt/files
+        chmod +x $DIY_P2_SH
         cd ImmortalWrt
-        chmod +x "$GITHUB_WORKSPACE/$DIY_P2_SH" && "$GITHUB_WORKSPACE/$DIY_P2_SH"
-        overlay="$GITHUB_WORKSPACE/${DIY_P2_SH%.sh}.d/${{ github.event.inputs.REPO }}.sh"
-        if [ -e "$overlay" ]; then
-          chmod +x "$overlay" && "$overlay"
-        fi
+        $GITHUB_WORKSPACE/$DIY_P2_SH
 
     - name: Free up disk space
       run: |
@@ -296,7 +319,7 @@ jobs:
         - 源码 Commit: $SOURCE_COMMIT
         - 配置文件: $CONFIG_FILE
         - 内核版本: $KERNEL_VERSION
-        - 后台地址: 192.168.6.1
+        - 管理地址: 192.168.6.1
         - 编译缓存: ${{ github.event.inputs.Cache }}
         - MEMORY_SHRINK_AGGRESS: ${{ github.event.inputs.MEMORY_SHRINK_AGGRESS }}
         - ZRAM_SWAP: ${{ github.event.inputs.ZRAM_SWAP }}
