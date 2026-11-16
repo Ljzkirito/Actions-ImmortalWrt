@@ -26,5 +26,5 @@ git -C feeds/luci/themes/luci-theme-argon checkout 1991a8e29ef6a086fb566517675ed
 sed -i 's/192.168.1.1/192.168.6.1/g' package/base-files/files/bin/config_generate
 
 #https://github.com/immortalwrt/packages/issues/1607
-#Fix Rust compilation failure
-sed -i 's/--set=llvm\.download-ci-llvm=true/--set=llvm.download-ci-llvm=false/' feeds/packages/lang/rust/Makefile
+#Fix Rust compilation failure（21.02 no rust)
+#sed -i 's/--set=llvm\.download-ci-llvm=true/--set=llvm.download-ci-llvm=false/' feeds/packages/lang/rust/Makefile
