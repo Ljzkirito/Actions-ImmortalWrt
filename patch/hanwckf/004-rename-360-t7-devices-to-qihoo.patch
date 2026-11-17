@@ -1,0 +1,48 @@
+From 63b9c17ca3ddbcb3ab76b37929d81cfd3c747e09 Mon Sep 17 00:00:00 2001
+From: Ljzkirito <66788052+Ljzkirito@users.noreply.github.com>
+Date: Tue, 17 Nov 2026 18:31:29 +0800
+Subject: [PATCH] Rename 360 T7 devices to Qihoo
+
+Use Qihoo device identifiers and vendor metadata for both 360 T7 variants.
+---
+ target/linux/mediatek/image/mt7981.mk | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/target/linux/mediatek/image/mt7981.mk b/target/linux/mediatek/image/mt7981.mk
+index 79dfe1fa4c0..18df2e5acdd 100644
+--- a/target/linux/mediatek/image/mt7981.mk
++++ b/target/linux/mediatek/image/mt7981.mk
+@@ -177,8 +177,8 @@ define Device/mt7981-fpga-sd
+ endef
+ TARGET_DEVICES += mt7981-fpga-sd
+ 
+-define Device/mt7981-360-t7
+-  DEVICE_VENDOR := MediaTek
++define Device/qihoo-360-t7
++  DEVICE_VENDOR := Qihoo
+   DEVICE_MODEL := 360 T7
+   DEVICE_DTS := mt7981-360-t7
+   DEVICE_DTS_DIR := $(DTS_DIR)/mediatek
+@@ -192,10 +192,10 @@ define Device/mt7981-360-t7
+   IMAGE/factory.bin := append-ubi | check-size $$$$(IMAGE_SIZE)
+   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+ endef
+-TARGET_DEVICES += mt7981-360-t7
++TARGET_DEVICES += qihoo-360-t7
+ 
+-define Device/mt7981-360-t7-108M
+-  DEVICE_VENDOR := MediaTek
++define Device/qihoo-360-t7-108M
++  DEVICE_VENDOR := Qihoo
+   DEVICE_MODEL := 360 T7 (with 108M ubi)
+   DEVICE_DTS := mt7981-360-t7-108M
+   DEVICE_DTS_DIR := $(DTS_DIR)/mediatek
+@@ -209,7 +209,7 @@ define Device/mt7981-360-t7-108M
+   IMAGE/factory.bin := append-ubi | check-size $$$$(IMAGE_SIZE)
+   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+ endef
+-TARGET_DEVICES += mt7981-360-t7-108M
++TARGET_DEVICES += qihoo-360-t7-108M
+ 
+ define Device/abt_asr3000
+   DEVICE_VENDOR := ABT

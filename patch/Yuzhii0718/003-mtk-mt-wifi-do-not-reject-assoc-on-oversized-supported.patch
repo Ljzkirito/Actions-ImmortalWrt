@@ -1,0 +1,43 @@
+From 7428e4d9b36b8f1471c9a065f92346d1f5f9bfbf Mon Sep 17 00:00:00 2001
+From: SuperKali <hello@superkali.me>
+Date: Sun, 5 Jul 2026 18:45:58 +0200
+Subject: [PATCH] mtk: mt_wifi: don't reject assoc on oversized Supported
+ Channels IE
+
+7.6.7.3 made PeerAssocReqCmmSanity() reject the whole assoc when the
+Supported Channels IE (EID 36) is longer than 64 bytes. Some clients
+(e.g. Intel AX210) send a 74-byte IE, so 5 GHz assoc always fails
+(#20, #56). Reject only odd-length IEs and clamp oversized ones, as
+7.6.7.2 did.
+---
+ ...ject-oversized-supported-channels-ie.patch | 21 +++++++++++++++++++
+ 1 file changed, 21 insertions(+)
+ create mode 100644 package/mtk/drivers/mt_wifi/patches-7673/040-ap_mgmt_assoc-dont-reject-oversized-supported-channels-ie.patch
+
+diff --git a/package/mtk/drivers/mt_wifi/patches-7673/040-ap_mgmt_assoc-dont-reject-oversized-supported-channels-ie.patch b/package/mtk/drivers/mt_wifi/patches-7673/040-ap_mgmt_assoc-dont-reject-oversized-supported-channels-ie.patch
+new file mode 100644
+index 00000000000..91fdda9210d
+--- /dev/null
++++ b/package/mtk/drivers/mt_wifi/patches-7673/040-ap_mgmt_assoc-dont-reject-oversized-supported-channels-ie.patch
+@@ -0,0 +1,21 @@
++mtk: mt_wifi: don't reject assoc on oversized Supported Channels IE
++
++7.6.7.3 made PeerAssocReqCmmSanity() reject the whole assoc when the
++Supported Channels IE (EID 36) is longer than MAX_LEN_OF_SUPPORTED_CHL (64).
++Some clients (e.g. Intel AX210) send a 74-byte IE, so 5 GHz assoc always
++fails (#20, #56). Reject only odd-length IEs and clamp oversized ones, like
++7.6.7.2 did; the copy is already bounded, so it stays safe.
++
++Signed-off-by: SuperKali <hello@superkali.me>
++
++--- a/mt_wifi/embedded/fsm/ap_mgmt_assoc.c
+++++ b/mt_wifi/embedded/fsm/ap_mgmt_assoc.c
++@@ -1434,7 +1434,7 @@
++ #endif /* DOT11_VHT_AC */
++ 
++ 		case IE_SUPP_CHANNELS:
++-			if (eid_ptr->Len > MAX_LEN_OF_SUPPORTED_CHL || (eid_ptr->Len % 2)) {
+++			if (eid_ptr->Len % 2) {
++ 				MTWF_DBG(pAd, DBG_CAT_AP, DBG_SUBCAT_ALL, DBG_LVL_INFO, "wrong IE_SUPP_CHANNELS, eid->Len = %d\n",
++ 						 eid_ptr->Len);
++ 				return FALSE;

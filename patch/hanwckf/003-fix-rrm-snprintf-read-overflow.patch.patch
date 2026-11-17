@@ -1,0 +1,43 @@
+From 95de33a3e90fa0c590e9a9659473df4b48ad0087 Mon Sep 17 00:00:00 2001
+From: chasey-dev <ellenyoung0912@gmail.com>
+Date: Thu, 5 Feb 2026 23:10:15 +0800
+Subject: [PATCH] mtk: mt_wifi: fix snprintf overflow in RRM actions There are
+ some `snprintf` read overflow found in RRM actions: ```log [ 1750.275699]
+ 7981@C00L1,RRM_PeerNeighborReqAction() 838: snprintf error! ``` It seems that
+ driver is not reading the SSID properly, since `snprintf` is expecting `'\0'`
+ which is usually missing in raw data, resulting in random read overflow
+ (trash data can sometimes be `'\0'`). So, we should use format `%.*s` to
+ control the read length.
+
+Signed-off-by: chasey-dev <ellenyoung0912@gmail.com>
+---
+ .../022-fix-rrm-snprintf-read-overflow.patch  | 20 +++++++++++++++++++
+ 1 file changed, 20 insertions(+)
+ create mode 100644 package/mtk/drivers/mt_wifi/patches-7673/022-fix-rrm-snprintf-read-overflow.patch
+
+diff --git a/package/mtk/drivers/mt_wifi/patches-7673/022-fix-rrm-snprintf-read-overflow.patch b/package/mtk/drivers/mt_wifi/patches-7673/022-fix-rrm-snprintf-read-overflow.patch
+new file mode 100644
+index 00000000000..cc89cff8643
+--- /dev/null
++++ b/package/mtk/drivers/mt_wifi/patches-7673/038-fix-rrm-snprintf-read-overflow.patch
+@@ -0,0 +1,20 @@
++--- a/mt_wifi/embedded/common/rrm.c
+++++ b/mt_wifi/embedded/common/rrm.c
++@@ -833,7 +833,7 @@ VOID RRM_PeerNeighborReqAction(
++ 	} else {
++ 		if (RRM_PeerNeighborReqSanity(pAd, Elem->Msg, Elem->MsgLen, &DialogToken, &pSsid, &SsidLen)) {
++ 			MTWF_DBG(pAd, DBG_CAT_PROTO, CATPROTO_RRM, DBG_LVL_INFO, "DialogToken=%x\n", DialogToken);
++-			ret = snprintf(ssidbuf, sizeof(ssidbuf), "%s", pSsid);
+++			ret = snprintf(ssidbuf, sizeof(ssidbuf), "%.*s", SsidLen, pSsid);
++ 			if (os_snprintf_error(sizeof(ssidbuf), ret)) {
++ 				MTWF_DBG(pAd, DBG_CAT_ALL, DBG_SUBCAT_ALL, DBG_LVL_ERROR,
++ 					"snprintf error!\n");
++@@ -2649,7 +2649,7 @@ VOID RRM_PeerMeasureReqAction(
++ 		memcpy(&pBcnReqData->MeasureReqInfo_scan, &MeasureReqInfo, sizeof(MEASURE_REQ_INFO));
++ 		memcpy(pBcnReqData->Addr1Req, pFr->Hdr.Addr1, 6);
++ 		memcpy(pBcnReqData->Addr2Req, pFr->Hdr.Addr2, 6);
++-		ret = snprintf(pBcnReqData->ReqSsid, SsidLen+1, "%s", pSsid);
+++		ret = snprintf(pBcnReqData->ReqSsid, sizeof(pBcnReqData->ReqSsid), "%.*s", SsidLen, pSsid);
++ 		if (os_snprintf_error(sizeof(pBcnReqData->ReqSsid), ret)) {
++ 			MTWF_DBG(pAd, DBG_CAT_PROTO, CATPROTO_RRM, DBG_LVL_ERROR, "%s : snprintf error\n", __func__);
++ 			return;

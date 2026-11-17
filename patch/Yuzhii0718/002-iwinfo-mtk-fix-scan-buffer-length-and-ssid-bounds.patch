@@ -1,0 +1,41 @@
+From 740103d655bcee6da7bc3b49b1cfdfdee4cd5bb6 Mon Sep 17 00:00:00 2001
+From: yoyo <212647593+frzb2023@users.noreply.github.com>
+Date: Fri, 11 Sep 2026 20:32:46 +0800
+Subject: [PATCH] iwinfo: mtk: fix scan buffer length and SSID bounds
+
+Pass the allocated buffer size to the site-survey ioctl instead of
+`sizeof(data)`, which only measures the pointer.
+
+Clamp the reported SSID length to `0..IWINFO_ESSID_MAX_SIZE` and explicitly
+NUL-terminate the copied SSID. This bounds the copy and prevents callers
+with uninitialized output buffers from reading trailing residual data.
+---
+ package/network/utils/iwinfo/src/iwinfo_mtk.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/package/network/utils/iwinfo/src/iwinfo_mtk.c b/package/network/utils/iwinfo/src/iwinfo_mtk.c
+index 56759bcb62..5054faa98e 100644
+--- a/package/network/utils/iwinfo/src/iwinfo_mtk.c
++++ b/package/network/utils/iwinfo/src/iwinfo_mtk.c
+@@ -509,7 +509,7 @@ static int mtk_get_scanlist(const char *dev, char *buf, int *len)
+ 
+ 	while (1) {
+ 		memset(data, 0, data_len);
+-		if (mtk_get_scanlist_dump(ifname, index, data, sizeof(data))) {
++		if (mtk_get_scanlist_dump(ifname, index, data, data_len)) {
+ 			free(data);
+ 			return -1;
+ 		}
+@@ -606,7 +606,12 @@ static int mtk_get_scanlist(const char *dev, char *buf, int *len)
+ 				mac + 0, mac + 1, mac + 2, mac + 3, mac + 4, mac + 5);
+ 
+ 			sscanf(pos + offsets[SCAN_DATA_SSID_LEN], "%d", &ssid_len);
++			if (ssid_len < 0)
++				ssid_len = 0;
++			if (ssid_len > IWINFO_ESSID_MAX_SIZE)
++				ssid_len = IWINFO_ESSID_MAX_SIZE;
+ 			memcpy(e->ssid, pos + offsets[SCAN_DATA_SSID], ssid_len);
++			e->ssid[ssid_len] = '\0';
+ 
+ 			*len += sizeof(struct iwinfo_scanlist_entry);
+ 			e++;
