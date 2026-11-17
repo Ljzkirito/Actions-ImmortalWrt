@@ -163,22 +163,6 @@ jobs:
         cd ImmortalWrt
         $GITHUB_WORKSPACE/$DIY_P2_SH
 
-    - name: Free up disk space
-      run: |
-        set +e
-        sudo apt-get -y clean
-        sudo rm -rf /var/lib/apt/lists/* \
-                    /usr/share/dotnet \
-                    /opt/ghc \
-                    /usr/local/lib/android \
-                    /usr/local/share/boost \
-                    /opt/hostedtoolcache/CodeQL
-        sudo docker image prune -a -f
-        sudo journalctl --vacuum-size=50M
-        df -hT /
-        AVAIL=$(df -BG --output=avail /workdir | tail -n1 | tr -dc '0-9')
-        echo "Build volume free space: ${AVAIL} GB"
-
     - name: Configure firmware options
       run: |
         set -e
