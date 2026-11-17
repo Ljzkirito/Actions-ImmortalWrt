@@ -310,7 +310,7 @@ jobs:
 
         ### 构建信息
         - 源码仓库: $REPO_URL
-        - 源码分支: $REPO_BRANCH
+        - 源码分支: [$REPO_BRANCH]($REPO_URL/tree/$REPO_BRANCH)
         - 源码 Commit: [$SOURCE_COMMIT]($SOURCE_LINK)
         - 配置文件: $CONFIG_FILE
         - 内核版本: $KERNEL_VERSION
