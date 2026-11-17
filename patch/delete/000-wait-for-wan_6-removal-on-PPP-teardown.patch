@@ -1,0 +1,29 @@
+From b1364b2f93e55f2a4250fa4bb3e9319ae485d3b2 Mon Sep 17 00:00:00 2001
+From: Ljzkirito <66788052+Ljzkirito@users.noreply.github.com>
+Date: Tue, 17 Nov 2026 21:26:53 +0800
+Subject: [PATCH] Wait for wan_6 removal on PPP teardown
+
+Replace the fixed three-second delay with polling for the wan_6 interface to disappear before completing PPP teardown.
+---
+ .../network/services/ppp/files/lib/netifd/ppp-down    | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/package/network/services/ppp/files/lib/netifd/ppp-down b/package/network/services/ppp/files/lib/netifd/ppp-down
+index 48c5325c285..1194695c33a 100755
+--- a/package/network/services/ppp/files/lib/netifd/ppp-down
++++ b/package/network/services/ppp/files/lib/netifd/ppp-down
+@@ -12,5 +12,12 @@ proto_send_update "$PPP_IPPARAM"
+ 	done
+ }
+ 
+-# sleep 3s to wait wan_6 down
+-sleep 3
++while true; do
++  if ubus -S list "network.interface.wan_6"; then
++    # ubus call network.interface.wan_6 down
++    logger "waiting wan_6 down..."
++    sleep 1
++  else
++    break
++  fi
++done
