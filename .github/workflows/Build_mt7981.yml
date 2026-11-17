@@ -25,7 +25,7 @@ on:
         default: false
         type: boolean
       MEMORY_SHRINK_AGGRESS:
-        description: 'CONFIG_MTK_MEMORY_SHRINK_AGGRESS (Free up about 40M)'
+        description: 'CONFIG_MTK_MEMORY_SHRINK_AGGRESS (For 256M device)'
         default: true
         type: boolean
       ZRAM_SWAP:
@@ -116,15 +116,10 @@ jobs:
         REPO="${{ github.event.inputs.REPO }}"
         PATCH_DIR="$GITHUB_WORKSPACE/patch/$REPO"
 
-        if [ ! -d "$PATCH_DIR" ]; then
-          echo "No patch directory for source repository '$REPO' ($PATCH_DIR), skipping."
-          exit 0
-        fi
-
         shopt -s nullglob
         PATCHES=("$PATCH_DIR"/*.patch)
-        if [ ${#PATCHES[@]} -eq 0 ]; then
-          echo "Patch directory exists but contains no .patch files ($PATCH_DIR), skipping."
+        if [ ! -d "$PATCH_DIR" ] || [ ${#PATCHES[@]} -eq 0 ]; then
+          echo "No patch directory or no .patch files for source repository '$REPO' ($PATCH_DIR), skipping."
           exit 0
         fi
 
@@ -314,9 +309,9 @@ jobs:
         ## ImmortalWrt mt7981 360t7 & wr30u Release $(date +"%Y.%m.%d-%H:%M")
 
         ### 构建信息
-        - 源码仓库: $SOURCE_LINK
+        - 源码仓库: $REPO_URL
         - 源码分支: $REPO_BRANCH
-        - 源码 Commit: $SOURCE_COMMIT
+        - 源码 Commit: [$SOURCE_COMMIT]($SOURCE_LINK)
         - 配置文件: $CONFIG_FILE
         - 内核版本: $KERNEL_VERSION
         - 管理地址: 192.168.6.1
