@@ -11,12 +11,22 @@
 #
 
 # Replace Smartdns
-rm -rfv feeds/luci/applications/luci-app-smartdns
-rm -rfv feeds/packages/net/smartdns
-git clone --depth=1 -b PikuZheng https://github.com/Ljzkirito/smartdns-openwrt temp-smartdns
-mv -fv temp-smartdns/luci-app-smartdns feeds/luci/applications/
-mv -fv temp-smartdns/smartdns feeds/packages/net/
-rm -rf temp-smartdns
+# Clone the custom repo into a dedicated folder under package/ (which the build
+# scans recursively), then delete the same-named package folders installed
+# from feeds so the local copy is the only one.
+SMARTDNS_DIR=package/smartdns-openwrt
+rm -rf "$SMARTDNS_DIR"
+git clone --depth=1 -b PikuZheng https://github.com/Ljzkirito/smartdns-openwrt "$SMARTDNS_DIR"
+
+for pkgdir in "$SMARTDNS_DIR"/*/; do
+  [ -f "$pkgdir/Makefile" ] || continue
+  pkgname=$(basename "$pkgdir")
+  find feeds -type d -name "$pkgname" -prune \
+    -exec sh -c '[ -f "$1/Makefile" ] && rm -rfv "$1"' _ {} \;
+done
+
+# Drop the symlinks that "feeds install -a" left pointing at the removed dirs.
+find package/feeds -xtype l -delete 2>/dev/null || true
 
 # Replace luci-theme-argon
 rm -rfv feeds/luci/themes/luci-theme-argon
